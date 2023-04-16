@@ -1,0 +1,426 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model hpd_violations {
+  violationid           Int       @id(map: "hpd_violations_pk") @unique(map: "hpd_violations_violationid_idx")
+  buildingid            Int?
+  registrationid        Int?
+  boroid                String?   @db.Char(1)
+  borough               String?
+  housenumber           String?
+  lowhousenumber        String?
+  highhousenumber       String?
+  streetname            String?
+  streetcode            String?
+  postcode              String?   @db.Char(5)
+  apartment             String?
+  story                 String?
+  block                 Int?
+  lot                   Int?
+  class                 String?   @db.Char(1)
+  inspectiondate        DateTime? @db.Date
+  approveddate          DateTime? @db.Date
+  originalcertifybydate DateTime? @db.Date
+  originalcorrectbydate DateTime? @db.Date
+  newcertifybydate      DateTime? @db.Date
+  newcorrectbydate      DateTime? @db.Date
+  certifieddate         DateTime? @db.Date
+  ordernumber           String?
+  novid                 Int?
+  novdescription        String?
+  novissueddate         DateTime? @db.Date
+  currentstatusid       Int?      @db.SmallInt
+  currentstatus         String?
+  currentstatusdate     DateTime? @db.Date
+  novtype               String?
+  violationstatus       String?
+  latitude              Decimal?  @db.Decimal
+  longitude             Decimal?  @db.Decimal
+  communityboard        String?
+  councildistrict       Int?      @db.SmallInt
+  censustract           String?
+  bin                   String?   @db.Char(7)
+  bbl                   String?   @db.Char(10)
+  nta                   String?
+  rentimpairing         Boolean?
+
+  @@index([bbl])
+  @@index([bin])
+  @@index([currentstatusid])
+  @@index([streetname], map: "hpd_violations_streetname_index")
+}
+
+model pluto_22v1 {
+  borough              String?
+  block                Int?
+  lot                  Int?
+  cd                   Int?      @db.SmallInt
+  bct2020              String?
+  bctcb2020            String?
+  ct2010               String?
+  cb2010               String?
+  schooldist           Int?      @db.SmallInt
+  council              Int?      @db.SmallInt
+  zipcode              String?   @db.Char(5)
+  firecomp             String?
+  policeprct           String?
+  healtharea           String?
+  sanitboro            String?   @db.Char(1)
+  sanitsub             String?   @db.Char(2)
+  address              String?
+  zonedist1            String?
+  zonedist2            String?
+  zonedist3            String?
+  zonedist4            String?
+  overlay1             String?
+  overlay2             String?
+  spdist1              String?
+  spdist2              String?
+  spdist3              String?
+  ltdheight            String?
+  splitzone            Boolean?
+  bldgclass            String?   @db.Char(2)
+  landuse              Int?      @db.SmallInt
+  easements            String?
+  ownertype            String?   @db.Char(1)
+  ownername            String?
+  lotarea              BigInt?
+  bldgarea             BigInt?
+  comarea              BigInt?
+  resarea              BigInt?
+  officearea           BigInt?
+  retailarea           BigInt?
+  garagearea           BigInt?
+  strgearea            BigInt?
+  factryarea           BigInt?
+  otherarea            BigInt?
+  areasource           String?
+  numbldgs             Int?
+  numfloors            Decimal?  @db.Decimal
+  unitsres             Int?
+  unitstotal           Int?
+  lotfront             Decimal?  @db.Decimal
+  lotdepth             Decimal?  @db.Decimal
+  bldgfront            Decimal?  @db.Decimal
+  bldgdepth            Decimal?  @db.Decimal
+  ext                  String?
+  proxcode             String?   @db.Char(1)
+  irrlotcode           Boolean?
+  lottype              String?   @db.Char(1)
+  bsmtcode             String?   @db.Char(1)
+  assessland           BigInt?
+  assesstot            BigInt?
+  exempttot            BigInt?
+  yearbuilt            Int?      @db.SmallInt
+  yearalter1           Int?      @db.SmallInt
+  yearalter2           Int?      @db.SmallInt
+  histdist             String?
+  landmark             String?
+  builtfar             Decimal?  @db.Decimal
+  residfar             Decimal?  @db.Decimal
+  commfar              Decimal?  @db.Decimal
+  facilfar             Decimal?  @db.Decimal
+  borocode             String?   @db.Char(1)
+  bbl                  String    @id(map: "pluto_22v1_pk") @db.Char(10)
+  condono              String?
+  tract2010            String?
+  xcoord               Int?
+  ycoord               Int?
+  zonemap              String?
+  zmcode               String?   @db.Char(1)
+  sanborn              String?
+  taxmap               String?
+  edesignum            String?
+  appbbl               String?   @db.Char(10)
+  appdate              DateTime? @db.Date
+  plutomapid           String?   @db.Char(1)
+  version              String?
+  sanitdistrict        Int?      @db.SmallInt
+  healthcenterdistrict Int?      @db.SmallInt
+  firm07flag           String?   @db.Char(1)
+  pfirm15flag          String?   @db.Char(1)
+  geom                 String?
+  dcpedited            String?
+  latitude             Float?
+  longitude            Float?
+  notes                String?
+
+  @@index([address], map: "pluto_22v1_address_index")
+  @@index([bbl])
+}
+
+model pluto_latest {
+  borough              String?
+  block                Int?
+  lot                  Int?
+  cd                   Int?      @db.SmallInt
+  ct2010               String?
+  cb2010               String?
+  schooldist           Int?      @db.SmallInt
+  council              Int?      @db.SmallInt
+  zipcode              String?   @db.Char(5)
+  firecomp             String?
+  policeprct           String?
+  healtharea           String?
+  sanitboro            String?   @db.Char(1)
+  sanitsub             String?   @db.Char(2)
+  address              String?
+  zonedist1            String?
+  zonedist2            String?
+  zonedist3            String?
+  zonedist4            String?
+  overlay1             String?
+  overlay2             String?
+  spdist1              String?
+  spdist2              String?
+  spdist3              String?
+  ltdheight            String?
+  splitzone            Boolean?
+  bldgclass            String?   @db.Char(2)
+  landuse              Int?      @db.SmallInt
+  easements            String?
+  ownertype            String?   @db.Char(1)
+  ownername            String?
+  lotarea              BigInt?
+  bldgarea             BigInt?
+  comarea              BigInt?
+  resarea              BigInt?
+  officearea           BigInt?
+  retailarea           BigInt?
+  garagearea           BigInt?
+  strgearea            BigInt?
+  factryarea           BigInt?
+  otherarea            BigInt?
+  areasource           String?
+  numbldgs             Int?
+  numfloors            Decimal?  @db.Decimal
+  unitsres             Int?
+  unitstotal           Int?
+  lotfront             Decimal?  @db.Decimal
+  lotdepth             Decimal?  @db.Decimal
+  bldgfront            Decimal?  @db.Decimal
+  bldgdepth            Decimal?  @db.Decimal
+  ext                  String?
+  proxcode             String?   @db.Char(1)
+  irrlotcode           Boolean?
+  lottype              String?   @db.Char(1)
+  bsmtcode             String?   @db.Char(1)
+  assessland           BigInt?
+  assesstot            BigInt?
+  exempttot            BigInt?
+  yearbuilt            Int?      @db.SmallInt
+  yearalter1           Int?      @db.SmallInt
+  yearalter2           Int?      @db.SmallInt
+  histdist             String?
+  landmark             String?
+  builtfar             Decimal?  @db.Decimal
+  residfar             Decimal?  @db.Decimal
+  commfar              Decimal?  @db.Decimal
+  facilfar             Decimal?  @db.Decimal
+  borocode             String?   @db.Char(1)
+  bbl                  String    @id(map: "pluto_latest_pk") @db.Char(10)
+  condono              String?
+  tract2010            String?
+  xcoord               Int?
+  ycoord               Int?
+  latitude             Float?
+  longitude            Float?
+  zonemap              String?
+  zmcode               String?   @db.Char(1)
+  sanborn              String?
+  taxmap               String?
+  edesignum            String?
+  appbbl               String?   @db.Char(10)
+  appdate              DateTime? @db.Date
+  plutomapid           String?   @db.Char(1)
+  version              String?
+  sanitdistrict        Int?      @db.SmallInt
+  healthcenterdistrict Int?      @db.SmallInt
+  firm07flag           String?   @db.Char(1)
+  pfirm15flag          String?   @db.Char(1)
+  geom                 String?
+  dcpedited            String?
+  notes                String?
+  landusedesc          String?
+
+  @@index([bbl])
+}
+
+model dob_violations {
+  bbl                 String?   @db.Char(10)
+  isndobbisviol       String?   @unique(map: "dob_violations_isndobbisviol_idx")
+  boro                String?   @db.Char(1)
+  bin                 String?   @db.Char(7)
+  block               String?
+  lot                 String?
+  issuedate           DateTime? @db.Date
+  violationtypecode   String?
+  violationnumber     String?
+  housenumber         String?
+  street              String?
+  dispositiondate     DateTime? @db.Date
+  dispositioncomments String?
+  devicenumber        String?
+  description         String?
+  ecbnumber           String?
+  number              String    @id
+  violationcategory   String?
+  violationtype       String?
+
+  @@index([bbl])
+  @@index([bin])
+  @@index([ecbnumber], map: "dob_violations_ecb_number_idx")
+  @@index([violationtypecode], map: "dob_violations_violationtypecode")
+}
+
+model hpd_litigations {
+  litigationid        Int       @id(map: "hpd_litigations_pk")
+  buildingid          Int?
+  boro                Int?
+  housenumber         String?
+  streetname          String?
+  zip                 String?
+  block               Int?
+  lot                 Int?
+  casetype            String?
+  caseopendate        DateTime? @db.Timestamp(6)
+  casestatus          String?
+  openjudgement       String?
+  findingofharassment String?
+  findingdate         DateTime? @db.Timestamp(6)
+  penalty             String?
+  respondent          String?
+  latitude            Decimal?  @db.Decimal
+  longitude           Decimal?  @db.Decimal
+  communitydistrict   String?
+  councildistrict     String?
+  censustract         String?
+  bin                 String?   @db.Char(7)
+  bbl                 String?   @db.Char(10)
+  nta                 String?
+
+  @@index([bbl])
+  @@index([bin])
+  @@index([buildingid])
+  @@index([litigationid])
+}
+
+model hpd_complaint_problems {
+  problemid         Int       @id(map: "hpd_complaint_problems_pk")
+  complaintid       Int?
+  unittypeid        Int?      @db.SmallInt
+  unittype          String?
+  spacetypeid       Int?      @db.SmallInt
+  spacetype         String?
+  typeid            Int?      @db.SmallInt
+  type              String?
+  majorcategoryid   Int?      @db.SmallInt
+  majorcategory     String?
+  minorcategoryid   Int?      @db.SmallInt
+  minorcategory     String?
+  codeid            Int?      @db.SmallInt
+  code              String?
+  statusid          Int?      @db.SmallInt
+  status            String?
+  statusdate        DateTime? @db.Date
+  statusdescription String?
+
+  @@index([complaintid])
+}
+
+model hpd_complaints {
+  complaintid    Int       @id(map: "hpd_complaints_pk")
+  buildingid     Int?
+  boroughid      Int?
+  borough        String?
+  housenumber    String?
+  streetname     String?
+  zip            String?
+  block          Int?
+  lot            Int?
+  apartment      String?
+  communityboard Int?
+  receiveddate   DateTime? @db.Date
+  statusid       Int?
+  status         String?
+  statusdate     DateTime? @db.Date
+  bbl            String?   @db.Char(10)
+
+  @@index([bbl])
+  @@index([buildingid])
+  @@index([complaintid])
+}
+
+model hpd_vacateorders {
+  buildingid           Int?
+  registrationid       Int?
+  borough              String?
+  number               String?
+  street               String?
+  vacateordernumber    Int       @id(map: "hpd_vacateorders_pk") @unique(map: "hpd_vacateorders_vacateordernumber_idx")
+  primaryvacatereason  String?
+  vacatetype           String?
+  vacateeffectivedate  DateTime? @db.Date
+  rescinddate          DateTime? @db.Date
+  numberofvacatedunits Int?
+  postcode             String?
+  latitude             Decimal?  @db.Decimal
+  longitude            Decimal?  @db.Decimal
+  communityboard       Int?
+  councildistrict      Int?
+  censustract          String?
+  bin                  String?   @db.Char(7)
+  bbl                  String?   @db.Char(10)
+  nta                  String?
+
+  @@index([bbl])
+  @@index([bin])
+  @@index([buildingid])
+  @@index([registrationid])
+}
+
+model dob_complaints {
+  complaintnumber   Int
+  status            String
+  dateentered       DateTime  @db.Date
+  housenumber       String?
+  zipcode           String?
+  housestreet       String?
+  bin               String    @db.Char(7)
+  communityboard    Int?
+  specialdistrict   String?
+  complaintcategory String?
+  unit              String?
+  dispositiondate   DateTime? @db.Date
+  dispositioncode   String?
+  inspectiondate    DateTime? @db.Date
+  dobrundate        DateTime? @db.Date
+
+  @@id([complaintnumber, status, dateentered, bin])
+  @@index([bin])
+}
+
+model dob_vacate_orders {
+  lastdispositiondate            DateTime @db.Date
+  lastdispositionyear            Int?
+  housenumber                    String
+  streetname                     String
+  boroughname                    String?
+  zipcode                        String?  @db.Char(5)
+  block                          Int?
+  lot                            Int?
+  complaintcategorydescription   String
+  lastdispositioncodedescription String
+  bbl                            String?  @db.Char(10)
+
+  @@id([lastdispositiondate, complaintcategorydescription, housenumber, lastdispositioncodedescription, streetname], map: "dob_vacate_orders_pk")
+  @@index([bbl])
+  @@index([lastdispositiondate])
+}

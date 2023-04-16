@@ -70,7 +70,7 @@ export default function Home() {
   );
 
   return (
-    <main className="flex flex-col justify-between p-8 w-full">
+    <main className="flex flex-col justify-between p-4 md:p-8 w-full">
       <div className="">
         <NycAddressSearch onSelect={setAddress} />
       </div>

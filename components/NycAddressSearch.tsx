@@ -84,7 +84,7 @@ export default function NycAddressSearch({
               aria-hidden="true"
             />
             <Combobox.Input
-              className="h-16 text-xl w-full border bg-transparent pl-11 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring-0 focus:ring-offset-0"
+              className="h-16 text-md md:text-xl w-full border bg-transparent pl-11 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring-0 focus:ring-offset-0"
               style={{ outline: "none" }}
               placeholder="Search NYC addresses"
               onChange={(event) => {

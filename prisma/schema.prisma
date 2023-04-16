@@ -278,6 +278,9 @@ model dob_violations {
   @@index([bin])
   @@index([ecbnumber], map: "dob_violations_ecb_number_idx")
   @@index([violationtypecode], map: "dob_violations_violationtypecode")
+  @@index([boro], map: "dob_violations_boro_index")
+  @@index([housenumber], map: "dob_violations_housenumber_index")
+  @@index([street], map: "dob_violations_street_index")
 }
 
 model hpd_litigations {
@@ -405,6 +408,8 @@ model dob_complaints {
 
   @@id([complaintnumber, status, dateentered, bin])
   @@index([bin])
+  @@index([housenumber], map: "dob_complaints_housenumber_index")
+  @@index([zipcode], map: "dob_complaints_zipcode_index")
 }
 
 model dob_vacate_orders {
@@ -423,4 +428,6 @@ model dob_vacate_orders {
   @@id([lastdispositiondate, complaintcategorydescription, housenumber, lastdispositioncodedescription, streetname], map: "dob_vacate_orders_pk")
   @@index([bbl])
   @@index([lastdispositiondate])
+  @@index([boroughname], map: "dob_vacate_orders_boroughname_index")
+  @@index([zipcode], map: "dob_vacate_orders_zipcode_index")
 }

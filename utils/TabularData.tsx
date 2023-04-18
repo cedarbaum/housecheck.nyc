@@ -16,6 +16,7 @@ import {
   HpdComplaintProblem,
   HpdComplaintProblems,
 } from "@/pages/api/hpd_complaint_problems";
+import { dobComplaintCodeToDescAndPriorityMap } from "./DobComplaintCodes";
 
 const DATE_MIN_VALUE = -8640000000000000;
 
@@ -173,7 +174,21 @@ const dobComplaintsColumnMetadata: Map<
   ],
   [
     "complaintcategory",
-    { Header: "Category", dataType: ColumnDataTypes.STRING },
+    {
+      Header: "Category",
+      dataType: ColumnDataTypes.STRING,
+      accessor: (row: DobComplaint) => {
+        const complaintDesc = dobComplaintCodeToDescAndPriorityMap.get(
+          row.complaintcategory ?? ""
+        );
+
+        if (!complaintDesc) {
+          return row.complaintcategory;
+        }
+
+        return `${row.complaintcategory} - ${complaintDesc[0]}`;
+      },
+    },
   ],
   ["status", { Header: "Status", dataType: ColumnDataTypes.STRING }],
   ["dateentered", { Header: "Date entered", dataType: ColumnDataTypes.DATE }],

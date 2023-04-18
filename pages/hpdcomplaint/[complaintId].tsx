@@ -47,7 +47,7 @@ export default function HpdComplaintProblems() {
       {isLoading && <Loading />}
       {!isLoading && data && (
         <section>
-          <h1 className="font-bold text-2xl my-8">{title}</h1>
+          <h1 className="font-bold text-2xl my-8">{`Problems for HPD complaint ${complaintId}`}</h1>
           {data &&
             (data?.hpdComplaintProblems?.length === 0 ? (
               <InfoCallout text={noDataDescription} />

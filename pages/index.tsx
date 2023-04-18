@@ -29,10 +29,6 @@ const tabularDataSources: (keyof HouseData)[] = [
 ];
 
 export default function Home() {
-  const [selectedAddressSearchTypes, setSelectedAddressSearchTypes] = useState<
-    Set<AddressSearchType>
-  >(new Set<AddressSearchType>(["bbl", "bin", "address"]));
-
   const [
     { label, streetname, housenumber, borough, postalcode, bbl, bin },
     setAddressData,
@@ -45,6 +41,15 @@ export default function Home() {
     bbl: queryTypes.string,
     bin: queryTypes.string,
   });
+
+  const [searchTypes, setSearchTypes] = useQueryState(
+    "search_types",
+    queryTypes
+      .array(
+        queryTypes.stringEnum<AddressSearchType>(["bbl", "bin", "address"])
+      )
+      .withDefault(["bbl", "bin", "address"])
+  );
 
   const [queryEnabled, setQueryEnabled] = useState(false);
 
@@ -63,9 +68,7 @@ export default function Home() {
       housenumber,
       borough,
       bbl,
-      selectedAddressSearchTypes.size > 0
-        ? Array.from(selectedAddressSearchTypes).sort().join(",")
-        : null,
+      searchTypes?.length > 0 ? searchTypes.sort().join(",") : null,
     ],
     async () => {
       const resp = await fetch(
@@ -77,7 +80,7 @@ export default function Home() {
             zipcode: postalcode!,
             bbl: bbl!,
             bin: bin!,
-            search_types: Array.from(selectedAddressSearchTypes).join(","),
+            search_types: searchTypes.join(","),
           })
       );
 
@@ -112,8 +115,10 @@ export default function Home() {
       </div>
       <div className="mt-4">
         <AddressSearchOptions
-          selectedSearchTypes={selectedAddressSearchTypes}
-          onSelectionsChanged={setSelectedAddressSearchTypes}
+          selectedSearchTypes={new Set(searchTypes ?? [])}
+          onSelectionsChanged={(newSelections) => {
+            setSearchTypes(Array.from(newSelections).sort());
+          }}
         />
       </div>
       {isLoading && <Loading />}

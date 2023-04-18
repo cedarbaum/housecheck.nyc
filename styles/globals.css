@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-.bp4-table-cell {
-  height: 60px;
-  line-height: 60px;
+a {
+ text-decoration: underline !important;
 }

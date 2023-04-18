@@ -11,6 +11,11 @@ import {
 import { Column, DefaultSortTypes } from "react-table";
 import { HouseData } from "@/pages/api/house_data";
 import { DateTime } from "luxon";
+import Link from "next/link";
+import {
+  HpdComplaintProblem,
+  HpdComplaintProblems,
+} from "@/pages/api/hpd_complaint_problems";
 
 const DATE_MIN_VALUE = -8640000000000000;
 
@@ -37,149 +42,191 @@ function columnDataTypeToSortType(dataType: ColumnDataTypes): DefaultSortTypes {
   }
 }
 
-type ColumnMetadata = {
+type ColumnMetadata<T extends object> = {
   Header: string;
   dataType: ColumnDataTypes;
-};
+} & Column<T>;
 
-const plutoColumnMetadata: Map<keyof PlutoData, ColumnMetadata> = new Map([
+const plutoColumnMetadata: Map<
+  keyof PlutoData,
+  ColumnMetadata<PlutoData>
+> = new Map([
   ["ownername", { Header: "Owner", dataType: ColumnDataTypes.STRING }],
   ["numfloors", { Header: "# floors", dataType: ColumnDataTypes.NUMBER }],
   ["unitstotal", { Header: "# units", dataType: ColumnDataTypes.NUMBER }],
   ["yearbuilt", { Header: "Year built", dataType: ColumnDataTypes.NUMBER }],
 ]);
 
-const hpdViolationColumnMetadata: Map<keyof HpdViolation, ColumnMetadata> =
-  new Map([
-    [
-      "violationid",
-      { Header: "Violation ID", dataType: ColumnDataTypes.NUMBER },
-    ],
-    [
-      "inspectiondate",
-      { Header: "Inpsection date", dataType: ColumnDataTypes.DATE },
-    ],
-    [
-      "novdescription",
-      { Header: "Description", dataType: ColumnDataTypes.STRING },
-    ],
-    ["violationstatus", { Header: "Status", dataType: ColumnDataTypes.STRING }],
-  ]);
+const hpdViolationColumnMetadata: Map<
+  keyof HpdViolation,
+  ColumnMetadata<HpdViolation>
+> = new Map([
+  ["violationid", { Header: "Violation ID", dataType: ColumnDataTypes.NUMBER }],
+  [
+    "inspectiondate",
+    { Header: "Inpsection date", dataType: ColumnDataTypes.DATE },
+  ],
+  [
+    "novdescription",
+    { Header: "Description", dataType: ColumnDataTypes.STRING },
+  ],
+  ["violationstatus", { Header: "Status", dataType: ColumnDataTypes.STRING }],
+]);
 
-const hpdComplaintColumnMetadata: Map<keyof HpdComplaint, ColumnMetadata> =
-  new Map([
-    [
-      "complaintid",
-      { Header: "Complaint ID", dataType: ColumnDataTypes.NUMBER },
-    ],
-    ["apartment", { Header: "Apartment", dataType: ColumnDataTypes.STRING }],
-    [
-      "receiveddate",
-      { Header: "Received date", dataType: ColumnDataTypes.DATE },
-    ],
-    ["status", { Header: "Status", dataType: ColumnDataTypes.STRING }],
-  ]);
+const hpdComplaintColumnMetadata: Map<
+  keyof HpdComplaint,
+  ColumnMetadata<HpdComplaint>
+> = new Map([
+  [
+    "complaintid",
+    {
+      Header: "Complaint ID",
+      dataType: ColumnDataTypes.NUMBER,
 
-const hpdLitigationsColumnMetadata: Map<keyof HpdLitigation, ColumnMetadata> =
-  new Map([
-    [
-      "litigationid",
-      { Header: "Complaint ID", dataType: ColumnDataTypes.NUMBER },
-    ],
-    ["casetype", { Header: "Apartment", dataType: ColumnDataTypes.STRING }],
-    ["casestatus", { Header: "Status", dataType: ColumnDataTypes.STRING }],
-    ["caseopendate", { Header: "Opened", dataType: ColumnDataTypes.DATE }],
-    ["penalty", { Header: "Penalty", dataType: ColumnDataTypes.STRING }],
-    [
-      "findingofharassment",
-      {
-        Header: "Finding of harassment",
-        dataType: ColumnDataTypes.STRING,
-      },
-    ],
-  ]);
+      Cell: ({ cell: { value } }: any) => (
+        <Link href={`/hpdcomplaint/${value}`}>{value}</Link>
+      ),
+    },
+  ],
+  ["apartment", { Header: "Apartment", dataType: ColumnDataTypes.STRING }],
+  ["receiveddate", { Header: "Received date", dataType: ColumnDataTypes.DATE }],
+  ["status", { Header: "Status", dataType: ColumnDataTypes.STRING }],
+]);
 
-const hpdVacateOrdersColumnMetadata: Map<keyof HpdVacateOrder, ColumnMetadata> =
-  new Map([
-    [
-      "vacateordernumber",
-      { Header: "Vacate order number", dataType: ColumnDataTypes.NUMBER },
-    ],
-    [
-      "vacateeffectivedate",
-      { Header: "Effective date", dataType: ColumnDataTypes.DATE },
-    ],
-    ["vacatetype", { Header: "Type", dataType: ColumnDataTypes.STRING }],
-    [
-      "primaryvacatereason",
-      { Header: "Reason", dataType: ColumnDataTypes.STRING },
-    ],
-    ["rescinddate", { Header: "Rescind date", dataType: ColumnDataTypes.DATE }],
-    [
-      "numberofvacatedunits",
-      { Header: "# units", dataType: ColumnDataTypes.NUMBER },
-    ],
-  ]);
+const hpdLitigationsColumnMetadata: Map<
+  keyof HpdLitigation,
+  ColumnMetadata<HpdLitigation>
+> = new Map([
+  [
+    "litigationid",
+    { Header: "Complaint ID", dataType: ColumnDataTypes.NUMBER },
+  ],
+  ["casetype", { Header: "Apartment", dataType: ColumnDataTypes.STRING }],
+  ["casestatus", { Header: "Status", dataType: ColumnDataTypes.STRING }],
+  ["caseopendate", { Header: "Opened", dataType: ColumnDataTypes.DATE }],
+  ["penalty", { Header: "Penalty", dataType: ColumnDataTypes.STRING }],
+  [
+    "findingofharassment",
+    {
+      Header: "Finding of harassment",
+      dataType: ColumnDataTypes.STRING,
+    },
+  ],
+]);
 
-const dobViolationsColumnMetadata: Map<keyof DobViolation, ColumnMetadata> =
-  new Map([
-    ["number", { Header: "Number", dataType: ColumnDataTypes.STRING }],
-    ["issuedate", { Header: "Issue date", dataType: ColumnDataTypes.DATE }],
-    ["violationnumber", { Header: "Number", dataType: ColumnDataTypes.STRING }],
-    [
-      "violationtypecode",
-      { Header: "Violation type code", dataType: ColumnDataTypes.STRING },
-    ],
-    [
-      "violationcategory",
-      { Header: "Violation category", dataType: ColumnDataTypes.STRING },
-    ],
-    [
-      "violationtype",
-      { Header: "Violation type", dataType: ColumnDataTypes.STRING },
-    ],
-    [
-      "description",
-      { Header: "Description", dataType: ColumnDataTypes.STRING },
-    ],
-  ]);
+const hpdVacateOrdersColumnMetadata: Map<
+  keyof HpdVacateOrder,
+  ColumnMetadata<HpdVacateOrder>
+> = new Map([
+  [
+    "vacateordernumber",
+    { Header: "Vacate order number", dataType: ColumnDataTypes.NUMBER },
+  ],
+  [
+    "vacateeffectivedate",
+    { Header: "Effective date", dataType: ColumnDataTypes.DATE },
+  ],
+  ["vacatetype", { Header: "Type", dataType: ColumnDataTypes.STRING }],
+  [
+    "primaryvacatereason",
+    { Header: "Reason", dataType: ColumnDataTypes.STRING },
+  ],
+  ["rescinddate", { Header: "Rescind date", dataType: ColumnDataTypes.DATE }],
+  [
+    "numberofvacatedunits",
+    { Header: "# units", dataType: ColumnDataTypes.NUMBER },
+  ],
+]);
 
-const dobComplaintsColumnMetadata: Map<keyof DobComplaint, ColumnMetadata> =
-  new Map([
-    ["complaintnumber", { Header: "Number", dataType: ColumnDataTypes.NUMBER }],
-    [
-      "complaintcategory",
-      { Header: "Category", dataType: ColumnDataTypes.STRING },
-    ],
-    ["status", { Header: "Status", dataType: ColumnDataTypes.STRING }],
-    ["dateentered", { Header: "Date entered", dataType: ColumnDataTypes.DATE }],
-  ]);
+const dobViolationsColumnMetadata: Map<
+  keyof DobViolation,
+  ColumnMetadata<DobViolation>
+> = new Map([
+  ["number", { Header: "Number", dataType: ColumnDataTypes.STRING }],
+  ["issuedate", { Header: "Issue date", dataType: ColumnDataTypes.DATE }],
+  ["violationnumber", { Header: "Number", dataType: ColumnDataTypes.STRING }],
+  [
+    "violationtypecode",
+    { Header: "Violation type code", dataType: ColumnDataTypes.STRING },
+  ],
+  [
+    "violationcategory",
+    { Header: "Violation category", dataType: ColumnDataTypes.STRING },
+  ],
+  [
+    "violationtype",
+    { Header: "Violation type", dataType: ColumnDataTypes.STRING },
+  ],
+  ["description", { Header: "Description", dataType: ColumnDataTypes.STRING }],
+]);
 
-const dobVacateOrdersColumnMetadata: Map<keyof DobVacateOrder, ColumnMetadata> =
-  new Map([
-    [
-      "lastdispositiondate",
-      { Header: "Last disposition date", dataType: ColumnDataTypes.DATE },
-    ],
-    [
-      "lastdispositioncodedescription",
-      {
-        Header: "Last disposition description",
-        dataType: ColumnDataTypes.STRING,
-      },
-    ],
-    [
-      "complaintcategorydescription",
-      {
-        Header: "Complaint category description",
-        dataType: ColumnDataTypes.STRING,
-      },
-    ],
-  ]);
+const dobComplaintsColumnMetadata: Map<
+  keyof DobComplaint,
+  ColumnMetadata<DobComplaint>
+> = new Map([
+  [
+    "complaintnumber",
+    {
+      Header: "Number",
+      dataType: ColumnDataTypes.NUMBER,
+    },
+  ],
+  [
+    "complaintcategory",
+    { Header: "Category", dataType: ColumnDataTypes.STRING },
+  ],
+  ["status", { Header: "Status", dataType: ColumnDataTypes.STRING }],
+  ["dateentered", { Header: "Date entered", dataType: ColumnDataTypes.DATE }],
+]);
+
+const dobVacateOrdersColumnMetadata: Map<
+  keyof DobVacateOrder,
+  ColumnMetadata<DobVacateOrder>
+> = new Map([
+  [
+    "lastdispositiondate",
+    { Header: "Last disposition date", dataType: ColumnDataTypes.DATE },
+  ],
+  [
+    "lastdispositioncodedescription",
+    {
+      Header: "Last disposition description",
+      dataType: ColumnDataTypes.STRING,
+    },
+  ],
+  [
+    "complaintcategorydescription",
+    {
+      Header: "Complaint category description",
+      dataType: ColumnDataTypes.STRING,
+    },
+  ],
+]);
+
+const hpdComplaintProblemsColumnMetadata: Map<
+  keyof HpdComplaintProblem,
+  ColumnMetadata<HpdComplaintProblem>
+> = new Map([
+  ["problemid", { Header: "Problem ID", dataType: ColumnDataTypes.NUMBER }],
+  ["unittype", { Header: "Unit type", dataType: ColumnDataTypes.STRING }],
+  ["spacetype", { Header: "Space type", dataType: ColumnDataTypes.STRING }],
+  [
+    "majorcategory",
+    { Header: "Major category", dataType: ColumnDataTypes.STRING },
+  ],
+  [
+    "minorcategory",
+    { Header: "Minor category", dataType: ColumnDataTypes.STRING },
+  ],
+  ["code", { Header: "Code", dataType: ColumnDataTypes.STRING }],
+  ["status", { Header: "Status", dataType: ColumnDataTypes.STRING }],
+  ["statusdescription", { Header: "Status", dataType: ColumnDataTypes.STRING }],
+  ["statusdate", { Header: "Status date", dataType: ColumnDataTypes.DATE }],
+]);
 
 const dataSourceToHeaders = new Map<
-  keyof HouseData,
-  Map<string, ColumnMetadata>
+  keyof HouseData | keyof HpdComplaintProblems,
+  Map<string, ColumnMetadata<any>>
 >([
   ["plutoData", plutoColumnMetadata],
   ["hpdViolations", hpdViolationColumnMetadata],
@@ -189,9 +236,12 @@ const dataSourceToHeaders = new Map<
   ["dobViolations", dobViolationsColumnMetadata],
   ["dobComplaints", dobComplaintsColumnMetadata],
   ["dobVacateOrders", dobVacateOrdersColumnMetadata],
+  ["hpdComplaintProblems", hpdComplaintProblemsColumnMetadata],
 ]);
 
-export function getSectionMetadataForDataSource(dataSource: keyof HouseData): {
+export function getSectionMetadataForDataSource(
+  dataSource: keyof HouseData | keyof HpdComplaintProblems
+): {
   title: string;
   noDataDescription: string;
 } {
@@ -236,20 +286,27 @@ export function getSectionMetadataForDataSource(dataSource: keyof HouseData): {
         title: "DOB vacate orders",
         noDataDescription: "No DOB vacate orders found for this address",
       };
+    case "hpdComplaintProblems":
+      return {
+        title: "HPD complaint problems",
+        noDataDescription:
+          "No HPD complaint problems found for this complaint ID",
+      };
     default:
       return { title: "", noDataDescription: "" };
   }
 }
 
-export function getColumnsForDataSource(dataSource: keyof HouseData): Column[] {
+export function getColumnsForDataSource(
+  dataSource: keyof HouseData | keyof HpdComplaintProblems
+): Column<any>[] {
   const headers = dataSourceToHeaders.get(dataSource);
   if (!headers) {
     throw new Error(`No headers found for data source ${dataSource}`);
   }
 
   // @ts-ignore
-  return Array.from(headers).map(([key, { Header, dataType }]) => ({
-    Header,
+  return Array.from(headers).map(([key, { dataType, ...rest }]) => ({
     accessor:
       dataType === ColumnDataTypes.DATE
         ? (row: any) => getDateAccessor(row, key)
@@ -258,6 +315,7 @@ export function getColumnsForDataSource(dataSource: keyof HouseData): Column[] {
     ...(dataType === ColumnDataTypes.DATE && {
       Cell: ({ cell: { value } }) => <div>{formatDate(value)}</div>,
     }),
+    ...rest,
   }));
 }
 

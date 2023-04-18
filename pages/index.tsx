@@ -93,7 +93,7 @@ export default function Home() {
   );
 
   return (
-    <main className="flex flex-col justify-between p-4 md:p-8 w-full">
+    <>
       <div className="">
         <NycAddressSearch
           initialAddress={label ?? undefined}
@@ -145,6 +145,6 @@ export default function Home() {
           )}
         </>
       )}
-    </main>
+    </>
   );
 }

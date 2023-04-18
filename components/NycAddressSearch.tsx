@@ -6,8 +6,10 @@ import { NycAddressAutocomplate, NycAddress } from "./NycAddressAutocomplate";
 import { classNames } from "@/utils/Styling";
 
 export default function NycAddressSearch({
+  initialAddress,
   onSelect,
 }: {
+  initialAddress?: string;
   onSelect: (placeDetails: NycAddress) => void;
 }) {
   const [selectedSuggestion, setSelectedSuggestion] =
@@ -91,7 +93,7 @@ export default function NycAddressSearch({
                 setSelectedSuggestion(null);
                 debouncedChangeHandler(event.target.value);
               }}
-              displayValue={(s) => (s as NycAddress | null)?.label ?? ""}
+              displayValue={(s) => (s as NycAddress | null)?.label ?? initialAddress ?? ""}
             />
           </div>
           {renderSuggestions()}

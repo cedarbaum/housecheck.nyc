@@ -1,7 +1,7 @@
 import NycAddressSearch from "@/components/NycAddressSearch";
 import Table from "@/components/Table";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NycAddress } from "@/components/NycAddressAutocomplate";
 import { useQuery } from "react-query";
 import { HouseData } from "./api/house_data";
@@ -16,6 +16,7 @@ import AddressSearchOptions, {
 } from "@/components/AddressSearchOptions";
 import PlutoInfo from "@/components/PlutoInfo";
 import Loading from "@/components/Loading";
+import { queryTypes, useQueryState, useQueryStates } from "next-usequerystate";
 
 const tabularDataSources: (keyof HouseData)[] = [
   "hpdViolations",
@@ -31,15 +32,37 @@ export default function Home() {
   const [selectedAddressSearchTypes, setSelectedAddressSearchTypes] = useState<
     Set<AddressSearchType>
   >(new Set<AddressSearchType>(["bbl", "bin", "address"]));
-  const [address, setAddress] = useState<NycAddress | null>(null);
+
+  const [
+    { label, streetname, housenumber, borough, postalcode, bbl, bin },
+    setAddressData,
+  ] = useQueryStates({
+    label: queryTypes.string,
+    streetname: queryTypes.string,
+    housenumber: queryTypes.string,
+    borough: queryTypes.string,
+    postalcode: queryTypes.string,
+    bbl: queryTypes.string,
+    bin: queryTypes.string,
+  });
+
+  const [queryEnabled, setQueryEnabled] = useState(false);
+
+  useEffect(() => {
+    setQueryEnabled(
+      (!!streetname && !!housenumber && !!borough && !!postalcode) ||
+        !!bbl ||
+        !!bin
+    );
+  }, [streetname, housenumber, borough, postalcode, bbl, bin]);
 
   let { data, isLoading, error } = useQuery(
     [
-      "hpd_violations",
-      address?.street,
-      address?.housenumber,
-      address?.borough,
-      address?.addendum?.pad?.bbl,
+      "house_data",
+      streetname,
+      housenumber,
+      borough,
+      bbl,
       selectedAddressSearchTypes.size > 0
         ? Array.from(selectedAddressSearchTypes).sort().join(",")
         : null,
@@ -48,12 +71,12 @@ export default function Home() {
       const resp = await fetch(
         "/api/house_data?" +
           new URLSearchParams({
-            streetname: address!.street,
-            housenumber: address!.housenumber,
-            borough: address!.borough,
-            zipcode: address!.postalcode,
-            bbl: address!.addendum?.pad?.bbl,
-            bin: address!.addendum?.pad?.bin,
+            streetname: streetname!,
+            housenumber: housenumber!,
+            borough: borough!,
+            zipcode: postalcode!,
+            bbl: bbl!,
+            bin: bin!,
             search_types: Array.from(selectedAddressSearchTypes).join(","),
           })
       );
@@ -65,14 +88,27 @@ export default function Home() {
       return JSON.parse(await resp.text(), jsonDateParser) as HouseData;
     },
     {
-      enabled: address !== null,
+      enabled: queryEnabled,
     }
   );
 
   return (
     <main className="flex flex-col justify-between p-4 md:p-8 w-full">
       <div className="">
-        <NycAddressSearch onSelect={setAddress} />
+        <NycAddressSearch
+          initialAddress={label ?? undefined}
+          onSelect={(address: NycAddress) => {
+            setAddressData({
+              label: address.label,
+              streetname: address.street,
+              housenumber: address.housenumber,
+              borough: address.borough,
+              postalcode: address.postalcode,
+              bbl: address.addendum?.pad?.bbl,
+              bin: address.addendum?.pad?.bin,
+            });
+          }}
+        />
       </div>
       <div className="mt-4">
         <AddressSearchOptions
@@ -81,7 +117,7 @@ export default function Home() {
         />
       </div>
       {isLoading && <Loading />}
-      {!isLoading && address && data && (
+      {!isLoading && data && (
         <>
           <section>
             <PlutoInfo plutoData={data?.plutoData} />

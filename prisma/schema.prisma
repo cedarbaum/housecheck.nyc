@@ -431,3 +431,10 @@ model dob_vacate_orders {
   @@index([boroughname], map: "dob_vacate_orders_boroughname_index")
   @@index([zipcode], map: "dob_vacate_orders_zipcode_index")
 }
+
+model metadata {
+  dataset      String   @id
+  status       String
+  last_updated DateTime @db.Timestamp(6)
+  version      String?  @db.Char(10)
+}

@@ -23,7 +23,21 @@ export type HpdComplaintProblem = Prisma.hpd_complaint_problemsGetPayload<
 
 export type HpdComplaintProblems = {
   hpdComplaintProblems: HpdComplaintProblem[];
+  metadata: Metadata;
 };
+
+const metadataSelectArgs = Prisma.validator<Prisma.metadataArgs>()({
+  select: {
+    last_updated: true,
+    version: true,
+    start_date: true,
+    end_date: true,
+    data_range_precision: true,
+    href: true,
+  },
+});
+
+export type Metadata = Prisma.metadataGetPayload<typeof metadataSelectArgs>;
 
 const prisma = new PrismaClient();
 
@@ -37,14 +51,29 @@ export default async function handler(
     return;
   }
 
-  const hpdComplaintProblems = await prisma.hpd_complaint_problems.findMany({
-    ...hpdComplaintProblemsSelectArgs,
-    where: {
-      complaintid: parseInt(complaint_id),
-    },
-  });
+  const [hpdComplaintProblems, hpdComplaintProblemsMetadata] =
+    await prisma.$transaction([
+      prisma.hpd_complaint_problems.findMany({
+        ...hpdComplaintProblemsSelectArgs,
+        where: {
+          complaintid: parseInt(complaint_id),
+        },
+      }),
+      prisma.metadata.findUnique({
+        ...metadataSelectArgs,
+        where: {
+          dataset: "hpd_complaints",
+        },
+      }),
+    ]);
 
   res.status(200).json({
     hpdComplaintProblems,
+    metadata: {
+      ...hpdComplaintProblemsMetadata!,
+      // TODO: This is a hack to get around the fact that the metadata table only stores 1 href
+      // per dataset and hpd_complaints has 2 tables.
+      href: "https://data.cityofnewyork.us/Housing-Development/Complaint-Problems/a2nx-4u46",
+    },
   });
 }

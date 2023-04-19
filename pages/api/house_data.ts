@@ -113,6 +113,19 @@ export type DobVacateOrder = Prisma.dob_vacate_ordersGetPayload<
   typeof dobVacateOrdersSelectArgs
 >;
 
+const metadataSelectArgs = Prisma.validator<Prisma.metadataArgs>()({
+  select: {
+    last_updated: true,
+    version: true,
+    start_date: true,
+    end_date: true,
+    data_range_precision: true,
+    href: true,
+  },
+});
+
+export type Metadata = Prisma.metadataGetPayload<typeof metadataSelectArgs>;
+
 export type HouseData = {
   plutoData: PlutoData | null;
   hpdViolations: HpdViolation[];
@@ -122,6 +135,7 @@ export type HouseData = {
   dobViolations: DobViolation[];
   dobComplaints: DobComplaint[];
   dobVacateOrders: DobVacateOrder[];
+  metadata?: Record<Exclude<keyof HouseData, "metadata">, Metadata>;
 };
 
 function boroughToBoro(borough: string): number {
@@ -196,196 +210,260 @@ export default async function handler(
   bbl = bbl as string | undefined;
   bin = bin as string | undefined;
 
-  const plutoData = await prisma.pluto_latest.findFirst({
-    ...plutoSelectArgs,
-    where: {
-      bbl: { equals: bbl as string },
-    },
-  });
+  const [plutoData, plutoDataMetadata] = await prisma.$transaction([
+    prisma.pluto_latest.findFirst({
+      ...plutoSelectArgs,
+      where: {
+        bbl: { equals: bbl as string },
+      },
+    }),
+    prisma.metadata.findUnique({
+      ...metadataSelectArgs,
+      where: {
+        dataset: "pluto_latest",
+      },
+    }),
+  ]);
 
-  const hpdViolations = await prisma.hpd_violations.findMany({
-    ...hpdViolationSelectArgs,
-    where: {
-      OR: [
-        { ...(bbl && searchTypes.has("bbl") && { bbl: { equals: bbl } }) },
-        { ...(bin && searchTypes.has("bin") && { bin: { equals: bin } }) },
-        {
-          ...(streetname &&
-            borough &&
-            housenumber &&
-            searchTypes.has("address") && {
-              streetname: { equals: streetname },
-              borough: { equals: borough },
-              OR: [
-                {
-                  AND: [
-                    { lowhousenumber: { lte: housenumber } },
-                    { highhousenumber: { gte: housenumber } },
-                  ],
-                },
-                {
-                  housenumber: {
-                    equals: housenumber,
-                  },
-                },
-              ],
-            }),
-        },
-      ],
-    },
-    orderBy: {
-      inspectiondate: "desc",
-    },
-  });
-
-  const hpdComplaints = await prisma.hpd_complaints.findMany({
-    ...hpdComplaintsSelectArgs,
-    where: {
-      OR: [
-        { ...(bbl && searchTypes.has("bbl") && { bbl: { equals: bbl } }) },
-        {
-          ...(streetname &&
-            borough &&
-            housenumber &&
-            searchTypes.has("address") && {
-              AND: {
+  const [hpdViolations, hpdViolationsMetadata] = await prisma.$transaction([
+    prisma.hpd_violations.findMany({
+      ...hpdViolationSelectArgs,
+      where: {
+        OR: [
+          { ...(bbl && searchTypes.has("bbl") && { bbl: { equals: bbl } }) },
+          { ...(bin && searchTypes.has("bin") && { bin: { equals: bin } }) },
+          {
+            ...(streetname &&
+              borough &&
+              housenumber &&
+              searchTypes.has("address") && {
                 streetname: { equals: streetname },
-                housenumber: { equals: housenumber },
                 borough: { equals: borough },
-              },
-            }),
-        },
-      ],
-    },
-    orderBy: {
-      receiveddate: "desc",
-    },
-  });
+                OR: [
+                  {
+                    AND: [
+                      { lowhousenumber: { lte: housenumber } },
+                      { highhousenumber: { gte: housenumber } },
+                    ],
+                  },
+                  {
+                    housenumber: {
+                      equals: housenumber,
+                    },
+                  },
+                ],
+              }),
+          },
+        ],
+      },
+      orderBy: {
+        inspectiondate: "desc",
+      },
+    }),
+    prisma.metadata.findUnique({
+      ...metadataSelectArgs,
+      where: {
+        dataset: "hpd_violations",
+      },
+    }),
+  ]);
 
-  const hpdLitigations = await prisma.hpd_litigations.findMany({
-    ...hpdLitigaionSelectArgs,
-    where: {
-      OR: [
-        { ...(bbl && searchTypes.has("bbl") && { bbl: { equals: bbl } }) },
-        { ...(bin && searchTypes.has("bin") && { bin: { equals: bin } }) },
-        {
-          ...(streetname &&
-            borough &&
-            housenumber &&
-            searchTypes.has("address") && {
-              AND: {
-                streetname: { equals: streetname },
-                housenumber: { equals: housenumber },
-                boro: { equals: boroughToBoro(borough) },
-              },
-            }),
-        },
-      ],
-    },
-    orderBy: {
-      caseopendate: "desc",
-    },
-  });
+  const [hpdComplaints, hpdComplaintsMetadata] = await prisma.$transaction([
+    prisma.hpd_complaints.findMany({
+      ...hpdComplaintsSelectArgs,
+      where: {
+        OR: [
+          { ...(bbl && searchTypes.has("bbl") && { bbl: { equals: bbl } }) },
+          {
+            ...(streetname &&
+              borough &&
+              housenumber &&
+              searchTypes.has("address") && {
+                AND: {
+                  streetname: { equals: streetname },
+                  housenumber: { equals: housenumber },
+                  borough: { equals: borough },
+                },
+              }),
+          },
+        ],
+      },
+      orderBy: {
+        receiveddate: "desc",
+      },
+    }),
+    prisma.metadata.findUnique({
+      ...metadataSelectArgs,
+      where: {
+        dataset: "hpd_complaints",
+      },
+    }),
+  ]);
 
-  const hpdVacateOrders = await prisma.hpd_vacateorders.findMany({
-    ...hptVactateOrderSelectArgs,
-    where: {
-      OR: [
-        { ...(bbl && searchTypes.has("bbl") && { bbl: { equals: bbl } }) },
-        { ...(bin && searchTypes.has("bin") && { bin: { equals: bin } }) },
-        {
-          ...(streetname &&
-            borough &&
-            housenumber &&
-            searchTypes.has("address") && {
-              AND: {
-                street: { equals: streetname },
-                number: { equals: housenumber },
-                borough: { equals: boroughToBoroCode(borough) },
-              },
-            }),
-        },
-      ],
-    },
-    orderBy: {
-      vacateeffectivedate: "desc",
-    },
-  });
+  const [hpdLitigations, hpdLitigationsMetadata] = await prisma.$transaction([
+    prisma.hpd_litigations.findMany({
+      ...hpdLitigaionSelectArgs,
+      where: {
+        OR: [
+          { ...(bbl && searchTypes.has("bbl") && { bbl: { equals: bbl } }) },
+          { ...(bin && searchTypes.has("bin") && { bin: { equals: bin } }) },
+          {
+            ...(streetname &&
+              borough &&
+              housenumber &&
+              searchTypes.has("address") && {
+                AND: {
+                  streetname: { equals: streetname },
+                  housenumber: { equals: housenumber },
+                  boro: { equals: boroughToBoro(borough) },
+                },
+              }),
+          },
+        ],
+      },
+      orderBy: {
+        caseopendate: "desc",
+      },
+    }),
+    prisma.metadata.findUnique({
+      ...metadataSelectArgs,
+      where: {
+        dataset: "hpd_litigations",
+      },
+    }),
+  ]);
 
-  const dobComplaints = await prisma.dob_complaints.findMany({
-    ...dobComplaintsSelectArgs,
-    where: {
-      OR: [
-        { ...(bin && searchTypes.has("bin") && { bin: { equals: bin } }) },
-        {
-          ...(streetname &&
-            zipcode &&
-            housenumber &&
-            searchTypes.has("address") && {
-              AND: {
-                housestreet: { equals: streetname },
-                housenumber: { equals: housenumber },
-                zipcode: { equals: zipcode },
-              },
-            }),
-        },
-      ],
-    },
-    orderBy: {
-      dateentered: "desc",
-    },
-  });
+  const [hpdVacateOrders, hpdVacateOrdersMetadata] = await prisma.$transaction([
+    prisma.hpd_vacateorders.findMany({
+      ...hptVactateOrderSelectArgs,
+      where: {
+        OR: [
+          { ...(bbl && searchTypes.has("bbl") && { bbl: { equals: bbl } }) },
+          { ...(bin && searchTypes.has("bin") && { bin: { equals: bin } }) },
+          {
+            ...(streetname &&
+              borough &&
+              housenumber &&
+              searchTypes.has("address") && {
+                AND: {
+                  street: { equals: streetname },
+                  number: { equals: housenumber },
+                  borough: { equals: boroughToBoroCode(borough) },
+                },
+              }),
+          },
+        ],
+      },
+      orderBy: {
+        vacateeffectivedate: "desc",
+      },
+    }),
+    prisma.metadata.findUnique({
+      ...metadataSelectArgs,
+      where: {
+        dataset: "hpd_vacateorders",
+      },
+    }),
+  ]);
 
-  const dobViolations = await prisma.dob_violations.findMany({
-    ...dobViolationsSelectArgs,
-    where: {
-      OR: [
-        { ...(bbl && searchTypes.has("bbl") && { bbl: { equals: bbl } }) },
-        { ...(bin && searchTypes.has("bin") && { bin: { equals: bin } }) },
-        {
-          ...(streetname &&
-            borough &&
-            housenumber &&
-            searchTypes.has("address") && {
-              AND: {
-                street: { equals: streetname },
-                housenumber: { equals: housenumber },
-                boro: { equals: boroughToBoro(borough).toString() },
-              },
-            }),
-        },
-      ],
-    },
-    orderBy: {
-      issuedate: "desc",
-    },
-  });
+  const [dobComplaints, dobComplaintsMetadata] = await prisma.$transaction([
+    prisma.dob_complaints.findMany({
+      ...dobComplaintsSelectArgs,
+      where: {
+        OR: [
+          { ...(bin && searchTypes.has("bin") && { bin: { equals: bin } }) },
+          {
+            ...(streetname &&
+              zipcode &&
+              housenumber &&
+              searchTypes.has("address") && {
+                AND: {
+                  housestreet: { equals: streetname },
+                  housenumber: { equals: housenumber },
+                  zipcode: { equals: zipcode },
+                },
+              }),
+          },
+        ],
+      },
+      orderBy: {
+        dateentered: "desc",
+      },
+    }),
+    prisma.metadata.findUnique({
+      ...metadataSelectArgs,
+      where: {
+        dataset: "dob_complaints",
+      },
+    }),
+  ]);
 
-  const dobVacateOrders = await prisma.dob_vacate_orders.findMany({
-    ...dobVacateOrdersSelectArgs,
-    where: {
-      OR: [
-        { ...(bbl && searchTypes.has("bbl") && { bbl: { equals: bbl } }) },
-        {
-          ...(streetname &&
-            borough &&
-            housenumber &&
-            zipcode &&
-            searchTypes.has("address") && {
-              AND: {
-                streetname: { equals: streetname },
-                housenumber: { equals: housenumber },
-                boroughname: { equals: boroughToCapitalizedBorough(borough) },
-                zipcode: { equals: zipcode },
-              },
-            }),
-        },
-      ],
-    },
-    orderBy: {
-      lastdispositiondate: "desc",
-    },
-  });
+  const [dobViolations, dobViolationsMetadata] = await prisma.$transaction([
+    prisma.dob_violations.findMany({
+      ...dobViolationsSelectArgs,
+      where: {
+        OR: [
+          { ...(bbl && searchTypes.has("bbl") && { bbl: { equals: bbl } }) },
+          { ...(bin && searchTypes.has("bin") && { bin: { equals: bin } }) },
+          {
+            ...(streetname &&
+              borough &&
+              housenumber &&
+              searchTypes.has("address") && {
+                AND: {
+                  street: { equals: streetname },
+                  housenumber: { equals: housenumber },
+                  boro: { equals: boroughToBoro(borough).toString() },
+                },
+              }),
+          },
+        ],
+      },
+      orderBy: {
+        issuedate: "desc",
+      },
+    }),
+    prisma.metadata.findUnique({
+      ...metadataSelectArgs,
+      where: {
+        dataset: "dob_violations",
+      },
+    }),
+  ]);
+
+  const [dobVacateOrders, dobVacateOrdersMetadata] = await prisma.$transaction([
+    prisma.dob_vacate_orders.findMany({
+      ...dobVacateOrdersSelectArgs,
+      where: {
+        OR: [
+          { ...(bbl && searchTypes.has("bbl") && { bbl: { equals: bbl } }) },
+          {
+            ...(streetname &&
+              borough &&
+              housenumber &&
+              zipcode &&
+              searchTypes.has("address") && {
+                AND: {
+                  streetname: { equals: streetname },
+                  housenumber: { equals: housenumber },
+                  boroughname: { equals: boroughToCapitalizedBorough(borough) },
+                  zipcode: { equals: zipcode },
+                },
+              }),
+          },
+        ],
+      },
+      orderBy: {
+        lastdispositiondate: "desc",
+      },
+    }),
+    prisma.metadata.findUnique({
+      ...metadataSelectArgs,
+      where: {
+        dataset: "dob_vacate_orders",
+      },
+    }),
+  ]);
 
   res.status(200).json({
     plutoData,
@@ -396,5 +474,15 @@ export default async function handler(
     dobViolations,
     dobComplaints,
     dobVacateOrders,
+    metadata: {
+      plutoData: plutoDataMetadata!,
+      hpdViolations: hpdViolationsMetadata!,
+      hpdComplaints: hpdComplaintsMetadata!,
+      hpdLitigations: hpdLitigationsMetadata!,
+      hpdVacateOrders: hpdVacateOrdersMetadata!,
+      dobViolations: dobViolationsMetadata!,
+      dobComplaints: dobComplaintsMetadata!,
+      dobVacateOrders: dobVacateOrdersMetadata!,
+    },
   });
 }

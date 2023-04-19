@@ -29,6 +29,7 @@ function Table<TData extends object>({
 }: TableProps<TData>) {
   const {
     //Core
+    rows,
     getTableProps,
     getTableBodyProps,
     headerGroups,
@@ -144,7 +145,7 @@ function Table<TData extends object>({
         </table>
       </div>
       {/* Pagination */}
-      {paginate && (
+      {paginate && rows.length > 5 && (
         <div className="py-3 flex items-center justify-between">
           <div className="flex-1 flex justify-between sm:hidden">
             <Button onClick={() => previousPage()} disabled={!canPreviousPage}>
@@ -235,7 +236,7 @@ function Button({ children, className, ...rest }: ButtonProps) {
     <button
       type="button"
       className={classNames(
-        "relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium bg-white hover:bg-gray-50",
+        "relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm text-black disabled:opacity-50 font-medium bg-white enabled:hover:bg-gray-50",
         className ?? ""
       )}
       {...rest}
@@ -250,7 +251,7 @@ function PageButton({ children, className, ...rest }: ButtonProps) {
     <button
       type="button"
       className={classNames(
-        "relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium hover:bg-gray-50",
+        "relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm text-black disabled:opacity-50 font-medium enabled:hover:bg-gray-50",
         className ?? ""
       )}
       {...rest}

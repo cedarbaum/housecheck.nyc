@@ -4,21 +4,23 @@ import Table from "@/components/Table";
 import { useEffect, useState } from "react";
 import { NycAddress } from "@/components/NycAddressAutocomplate";
 import { useQuery } from "react-query";
-import { HouseData } from "./api/house_data";
+import { HouseData, Metadata } from "./api/house_data";
 import {
   getColumnsForDataSource,
   getSectionMetadataForDataSource,
 } from "@/utils/TabularData";
 import { jsonDateParser } from "json-date-parser";
-import { InfoCallout } from "@/components/Callouts";
+import { InfoCallout, WarningCallout } from "@/components/Callouts";
 import AddressSearchOptions, {
   AddressSearchType,
 } from "@/components/AddressSearchOptions";
 import PlutoInfo from "@/components/PlutoInfo";
 import Loading from "@/components/Loading";
 import { queryTypes, useQueryState, useQueryStates } from "next-usequerystate";
+import SectionHeader from "@/components/SectionHeader";
+import AddressInfo from "@/components/AddressInfo";
 
-const tabularDataSources: (keyof HouseData)[] = [
+const tabularDataSources: Exclude<keyof HouseData, "metadata">[] = [
   "hpdViolations",
   "hpdComplaints",
   "hpdLitigations",
@@ -97,7 +99,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="">
+      <div>
         <NycAddressSearch
           initialAddress={label ?? undefined}
           onSelect={(address: NycAddress) => {
@@ -121,22 +123,60 @@ export default function Home() {
           }}
         />
       </div>
+      {queryEnabled && bbl && bin && postalcode && (
+        <div className="mt-6">
+          <AddressInfo bbl={bbl} bin={bin} postalcode={postalcode} />
+        </div>
+      )}
       {isLoading && <Loading />}
       {!isLoading && data && (
         <>
           <section>
-            <PlutoInfo plutoData={data?.plutoData} />
+            <SectionHeader
+              title="PLUTO data"
+              metadata={data!.metadata!["plutoData"]}
+            />
+            <PlutoInfo
+              plutoData={data?.plutoData}
+              searchTypes={new Set(searchTypes ?? [])}
+            />
           </section>
           {tabularDataSources.map((dataSource) =>
             (() => {
-              const { title, noDataDescription } =
+              const { title, noDataDescription, validSearchTypes } =
                 getSectionMetadataForDataSource(dataSource);
+
+              function formatSearchType(st: AddressSearchType): any {
+                switch (st) {
+                  case "address":
+                    return "Address";
+                  case "bbl":
+                    return "BBL";
+                  case "bin":
+                    return "BIN";
+                }
+              }
+
               return (
                 <section key={dataSource}>
-                  <h1 className="font-bold text-2xl my-8">{title}</h1>
+                  <SectionHeader
+                    title={title}
+                    metadata={data!.metadata![dataSource]}
+                  />
                   {data &&
                     ((data[dataSource] as any[]).length === 0 ? (
-                      <InfoCallout text={noDataDescription} />
+                      searchTypes.filter((st) => validSearchTypes.has(st))
+                        .length ? (
+                        <InfoCallout text={noDataDescription} />
+                      ) : (
+                        <WarningCallout
+                          text={`This data source requires one of the following search types: ${Array.from(
+                            validSearchTypes
+                          )
+                            .map((st) => formatSearchType(st))
+                            .join(", ")}.`}
+                        />
+                      )
                     ) : (
                       <Table
                         columns={getColumnsForDataSource(dataSource)}

@@ -9,6 +9,7 @@ import Loading from "@/components/Loading";
 import { InfoCallout } from "@/components/Callouts";
 import Table from "@/components/Table";
 import { jsonDateParser } from "json-date-parser";
+import SectionHeader from "@/components/SectionHeader";
 
 export default function HpdComplaintProblems() {
   const router = useRouter();
@@ -47,7 +48,10 @@ export default function HpdComplaintProblems() {
       {isLoading && <Loading />}
       {!isLoading && data && (
         <section>
-          <h1 className="font-bold text-2xl my-8">{`Problems for HPD complaint ${complaintId}`}</h1>
+          <SectionHeader
+            title={`Problems for HPD complaint ${complaintId}`}
+            metadata={data.metadata}
+          />
           {data &&
             (data?.hpdComplaintProblems?.length === 0 ? (
               <InfoCallout text={noDataDescription} />

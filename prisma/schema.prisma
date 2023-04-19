@@ -9,7 +9,7 @@ datasource db {
 }
 
 model hpd_violations {
-  violationid           Int       @id(map: "hpd_violations_pk") @unique(map: "hpd_violations_violationid_idx")
+  violationid           Int       @id(map: "hpd_violations_secondary_pkey1")
   buildingid            Int?
   registrationid        Int?
   boroid                String?   @db.Char(1)
@@ -51,10 +51,11 @@ model hpd_violations {
   nta                   String?
   rentimpairing         Boolean?
 
-  @@index([bbl])
-  @@index([bin])
-  @@index([currentstatusid])
-  @@index([streetname], map: "hpd_violations_streetname_index")
+  @@index([bbl], map: "hpd_violations_secondary_bbl_idx")
+  @@index([bin], map: "hpd_violations_secondary_bin_idx")
+  @@index([borough], map: "hpd_violations_secondary_borough_idx")
+  @@index([housenumber], map: "hpd_violations_secondary_housenumber_idx")
+  @@index([streetname], map: "hpd_violations_secondary_streetname_idx")
 }
 
 model pluto_22v1 {
@@ -255,7 +256,7 @@ model pluto_latest {
 
 model dob_violations {
   bbl                 String?   @db.Char(10)
-  isndobbisviol       String?   @unique(map: "dob_violations_isndobbisviol_idx")
+  isndobbisviol       String?
   boro                String?   @db.Char(1)
   bin                 String?   @db.Char(7)
   block               String?
@@ -270,21 +271,19 @@ model dob_violations {
   devicenumber        String?
   description         String?
   ecbnumber           String?
-  number              String    @id
+  number              String    @id(map: "dob_violations_secondary_pkey")
   violationcategory   String?
   violationtype       String?
 
-  @@index([bbl])
-  @@index([bin])
-  @@index([ecbnumber], map: "dob_violations_ecb_number_idx")
-  @@index([violationtypecode], map: "dob_violations_violationtypecode")
-  @@index([boro], map: "dob_violations_boro_index")
-  @@index([housenumber], map: "dob_violations_housenumber_index")
-  @@index([street], map: "dob_violations_street_index")
+  @@index([bbl], map: "dob_violations_secondary_bbl_idx1")
+  @@index([bin], map: "dob_violations_secondary_bin_idx1")
+  @@index([boro], map: "dob_violations_secondary_boro_idx1")
+  @@index([housenumber], map: "dob_violations_secondary_housenumber_idx1")
+  @@index([street], map: "dob_violations_secondary_street_idx1")
 }
 
 model hpd_litigations {
-  litigationid        Int       @id(map: "hpd_litigations_pk")
+  litigationid        Int       @id(map: "hpd_litigations_secondary_pkey1")
   buildingid          Int?
   boro                Int?
   housenumber         String?
@@ -309,14 +308,15 @@ model hpd_litigations {
   bbl                 String?   @db.Char(10)
   nta                 String?
 
-  @@index([bbl])
-  @@index([bin])
-  @@index([buildingid])
-  @@index([litigationid])
+  @@index([bbl], map: "hpd_litigations_secondary_bbl_idx")
+  @@index([bin], map: "hpd_litigations_secondary_bin_idx")
+  @@index([boro], map: "hpd_litigations_secondary_boro_idx")
+  @@index([housenumber], map: "hpd_litigations_secondary_housenumber_idx")
+  @@index([streetname], map: "hpd_litigations_secondary_streetname_idx")
 }
 
 model hpd_complaint_problems {
-  problemid         Int       @id(map: "hpd_complaint_problems_pk")
+  problemid         Int       @id(map: "hpd_complaint_problems_secondary_pkey")
   complaintid       Int?
   unittypeid        Int?      @db.SmallInt
   unittype          String?
@@ -335,11 +335,11 @@ model hpd_complaint_problems {
   statusdate        DateTime? @db.Date
   statusdescription String?
 
-  @@index([complaintid])
+  @@index([complaintid], map: "hpd_complaint_problems_secondary_complaintid_idx1")
 }
 
 model hpd_complaints {
-  complaintid    Int       @id(map: "hpd_complaints_pk")
+  complaintid    Int       @id(map: "hpd_complaints_secondary_pkey")
   buildingid     Int?
   boroughid      Int?
   borough        String?
@@ -356,9 +356,11 @@ model hpd_complaints {
   statusdate     DateTime? @db.Date
   bbl            String?   @db.Char(10)
 
-  @@index([bbl])
-  @@index([buildingid])
-  @@index([complaintid])
+  @@index([bbl], map: "hpd_complaints_secondary_bbl_idx1")
+  @@index([borough], map: "hpd_complaints_secondary_borough_idx1")
+  @@index([buildingid], map: "hpd_complaints_secondary_buildingid_idx1")
+  @@index([housenumber], map: "hpd_complaints_secondary_housenumber_idx1")
+  @@index([streetname], map: "hpd_complaints_secondary_streetname_idx1")
 }
 
 model hpd_vacateorders {
@@ -367,7 +369,7 @@ model hpd_vacateorders {
   borough              String?
   number               String?
   street               String?
-  vacateordernumber    Int       @id(map: "hpd_vacateorders_pk") @unique(map: "hpd_vacateorders_vacateordernumber_idx")
+  vacateordernumber    Int       @id(map: "hpd_vacateorders_secondary_pkey")
   primaryvacatereason  String?
   vacatetype           String?
   vacateeffectivedate  DateTime? @db.Date
@@ -383,10 +385,11 @@ model hpd_vacateorders {
   bbl                  String?   @db.Char(10)
   nta                  String?
 
-  @@index([bbl])
-  @@index([bin])
-  @@index([buildingid])
-  @@index([registrationid])
+  @@index([bbl], map: "hpd_vacateorders_secondary_bbl_idx")
+  @@index([bin], map: "hpd_vacateorders_secondary_bin_idx")
+  @@index([borough], map: "hpd_vacateorders_secondary_borough_idx")
+  @@index([number], map: "hpd_vacateorders_secondary_number_idx")
+  @@index([street], map: "hpd_vacateorders_secondary_street_idx")
 }
 
 model dob_complaints {
@@ -399,17 +402,17 @@ model dob_complaints {
   bin               String    @db.Char(7)
   communityboard    Int?
   specialdistrict   String?
-  complaintcategory String?
+  complaintcategory String
   unit              String?
   dispositiondate   DateTime? @db.Date
   dispositioncode   String?
   inspectiondate    DateTime? @db.Date
-  dobrundate        DateTime? @db.Date
+  dobrundate        DateTime  @db.Date
 
-  @@id([complaintnumber, status, dateentered, bin])
-  @@index([bin])
-  @@index([housenumber], map: "dob_complaints_housenumber_index")
-  @@index([zipcode], map: "dob_complaints_zipcode_index")
+  @@id([complaintnumber, status, dateentered, bin, complaintcategory, dobrundate], map: "dob_complaints_secondary_pkey1")
+  @@index([housenumber], map: "dob_complaints_secondary_housenumber_idx")
+  @@index([housestreet], map: "dob_complaints_secondary_housestreet_idx")
+  @@index([zipcode], map: "dob_complaints_secondary_zipcode_idx")
 }
 
 model dob_vacate_orders {
@@ -433,8 +436,12 @@ model dob_vacate_orders {
 }
 
 model metadata {
-  dataset      String   @id
-  status       String
-  last_updated DateTime @db.Timestamp(6)
-  version      String?  @db.Char(10)
+  dataset              String    @id
+  status               String
+  last_updated         DateTime  @db.Timestamp(6)
+  version              String?   @db.Char(10)
+  start_date           DateTime? @db.Timestamptz(6)
+  end_date             DateTime? @db.Timestamptz(6)
+  data_range_precision String?
+  href                 String?
 }

@@ -17,6 +17,7 @@ import {
   HpdComplaintProblems,
 } from "@/pages/api/hpd_complaint_problems";
 import { dobComplaintCodeToDescAndPriorityMap } from "./DobComplaintCodes";
+import { AddressSearchType } from "@/components/AddressSearchOptions";
 
 const DATE_MIN_VALUE = -8640000000000000;
 
@@ -145,7 +146,10 @@ const dobViolationsColumnMetadata: Map<
 > = new Map([
   ["number", { Header: "Number", dataType: ColumnDataTypes.STRING }],
   ["issuedate", { Header: "Issue date", dataType: ColumnDataTypes.DATE }],
-  ["violationnumber", { Header: "Number", dataType: ColumnDataTypes.STRING }],
+  [
+    "violationnumber",
+    { Header: "Violation number", dataType: ColumnDataTypes.STRING },
+  ],
   [
     "violationtypecode",
     { Header: "Violation type code", dataType: ColumnDataTypes.STRING },
@@ -259,56 +263,66 @@ export function getSectionMetadataForDataSource(
 ): {
   title: string;
   noDataDescription: string;
+  validSearchTypes: Set<AddressSearchType>;
 } {
   switch (dataSource) {
     case "plutoData":
       return {
         title: "PLUTO data",
         noDataDescription: "No PLUTO data found for this address",
+        validSearchTypes: new Set<AddressSearchType>(["bbl"]),
       };
     case "hpdViolations":
       return {
         title: "HPD violations",
         noDataDescription: "No HPD violations found for this address",
+        validSearchTypes: new Set<AddressSearchType>(["bbl", "bin", "address"]),
       };
     case "hpdComplaints":
       return {
         title: "HPD complaints",
         noDataDescription: "No HPD complaints found for this address",
+        validSearchTypes: new Set<AddressSearchType>(["bbl", "address"]),
       };
     case "hpdLitigations":
       return {
         title: "HPD litigations",
         noDataDescription: "No HPD litigations found for this address",
+        validSearchTypes: new Set<AddressSearchType>(["bbl", "bin", "address"]),
       };
     case "hpdVacateOrders":
       return {
         title: "HPD vacate orders",
         noDataDescription: "No HPD vacate orders found for this address",
+        validSearchTypes: new Set<AddressSearchType>(["bbl", "bin", "address"]),
       };
     case "dobViolations":
       return {
         title: "DOB violations",
         noDataDescription: "No DOB violations found for this address",
+        validSearchTypes: new Set<AddressSearchType>(["bbl", "bin", "address"]),
       };
     case "dobComplaints":
       return {
         title: "DOB complaints",
         noDataDescription: "No DOB complaints found for this address",
+        validSearchTypes: new Set<AddressSearchType>(["bin", "address"]),
       };
     case "dobVacateOrders":
       return {
         title: "DOB vacate orders",
         noDataDescription: "No DOB vacate orders found for this address",
+        validSearchTypes: new Set<AddressSearchType>(["bbl", "address"]),
       };
     case "hpdComplaintProblems":
       return {
         title: "HPD complaint problems",
         noDataDescription:
           "No HPD complaint problems found for this complaint ID",
+        validSearchTypes: new Set<AddressSearchType>([]),
       };
     default:
-      return { title: "", noDataDescription: "" };
+      return { title: "", noDataDescription: "", validSearchTypes: new Set() };
   }
 }
 

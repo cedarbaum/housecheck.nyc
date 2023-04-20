@@ -53,7 +53,10 @@ const plutoColumnMetadata: Map<
   keyof PlutoData,
   ColumnMetadata<PlutoData>
 > = new Map([
-  ["address", { Header: "Address (tax lot)", dataType: ColumnDataTypes.STRING }],
+  [
+    "address",
+    { Header: "Address (tax lot)", dataType: ColumnDataTypes.STRING },
+  ],
   ["ownername", { Header: "Owner", dataType: ColumnDataTypes.STRING }],
   ["numbldgs", { Header: "# buildings", dataType: ColumnDataTypes.NUMBER }],
   ["numfloors", { Header: "# floors", dataType: ColumnDataTypes.NUMBER }],
@@ -303,8 +306,8 @@ const hpdComplaintProblemsColumnMetadata: Map<
 ]);
 
 const dataSourceToHeaders = new Map<
-  keyof HouseData | keyof HpdComplaintProblems,
-  Map<string, ColumnMetadata<any>>
+  Exclude<keyof HouseData | keyof HpdComplaintProblems, "metadata">,
+  Map<string, any>
 >([
   ["plutoData", plutoColumnMetadata],
   ["hpdViolations", hpdViolationColumnMetadata],
@@ -318,7 +321,7 @@ const dataSourceToHeaders = new Map<
 ]);
 
 export function getSectionMetadataForDataSource(
-  dataSource: keyof HouseData | keyof HpdComplaintProblems
+  dataSource: Exclude<keyof HouseData | keyof HpdComplaintProblems, "metadata">
 ): {
   title: string;
   noDataDescription: string;
@@ -386,7 +389,7 @@ export function getSectionMetadataForDataSource(
 }
 
 export function getColumnsForDataSource(
-  dataSource: keyof HouseData | keyof HpdComplaintProblems
+  dataSource: Exclude<keyof HouseData | keyof HpdComplaintProblems, "metadata">
 ): Column<any>[] {
   const headers = dataSourceToHeaders.get(dataSource);
   if (!headers) {

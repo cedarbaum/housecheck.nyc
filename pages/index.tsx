@@ -10,7 +10,11 @@ import {
   getSectionMetadataForDataSource,
 } from "@/utils/TabularData";
 import { jsonDateParser } from "json-date-parser";
-import { InfoCallout, WarningCallout } from "@/components/Callouts";
+import {
+  ErrorCallout,
+  InfoCallout,
+  WarningCallout,
+} from "@/components/Callouts";
 import AddressSearchOptions, {
   AddressSearchType,
 } from "@/components/AddressSearchOptions";
@@ -126,6 +130,11 @@ export default function Home() {
       {queryEnabled && bbl && bin && postalcode && (
         <div className="mt-6">
           <AddressInfo bbl={bbl} bin={bin} postalcode={postalcode} />
+        </div>
+      )}
+      {!!error && (
+        <div className="mt-4">
+          <ErrorCallout text="Failed to retrieve house data." />
         </div>
       )}
       {isLoading && <Loading />}

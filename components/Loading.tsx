@@ -15,7 +15,7 @@ export default function Loading() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center w-full min-h-[200px]">
+    <div className="flex flex-col items-center justify-center w-full min-h-[300px]">
       <span className="inline-block text-8xl">
         {loadingEmojis[loadingEmojiIndex]}
       </span>

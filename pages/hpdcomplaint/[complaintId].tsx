@@ -6,7 +6,7 @@ import {
   getSectionMetadataForDataSource,
 } from "@/utils/TabularData";
 import Loading from "@/components/Loading";
-import { InfoCallout } from "@/components/Callouts";
+import { ErrorCallout, InfoCallout } from "@/components/Callouts";
 import Table from "@/components/Table";
 import { jsonDateParser } from "json-date-parser";
 import SectionHeader from "@/components/SectionHeader";
@@ -39,12 +39,15 @@ export default function HpdComplaintProblems() {
     }
   );
 
-  const { title, noDataDescription } = getSectionMetadataForDataSource(
+  const { noDataDescription } = getSectionMetadataForDataSource(
     "hpdComplaintProblems"
   );
 
   return (
     <div>
+      {!!error && (
+        <ErrorCallout text="Failed to retrieve complaint problems." />
+      )}
       {isLoading && <Loading />}
       {!isLoading && data && (
         <section>

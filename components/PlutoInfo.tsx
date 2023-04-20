@@ -1,13 +1,7 @@
 import { PlutoData } from "@/pages/api/house_data";
 import { ErrorCallout, WarningCallout } from "./Callouts";
 import { AddressSearchType } from "./AddressSearchOptions";
-
-const plutoHeaders: Map<keyof PlutoData, string> = new Map([
-  ["ownername", "Owner"],
-  ["numfloors", "# floors"],
-  ["unitstotal", "# units"],
-  ["yearbuilt", "Year built"],
-]);
+import { getColumnsForDataSource } from "@/utils/TabularData";
 
 export default function PlutoInfo({
   plutoData,
@@ -16,6 +10,7 @@ export default function PlutoInfo({
   plutoData: PlutoData | null;
   searchTypes: Set<AddressSearchType>;
 }) {
+  const plutoHeaders = getColumnsForDataSource("plutoData");
   return (
     <>
       {!plutoData ? (
@@ -29,13 +24,16 @@ export default function PlutoInfo({
           )}
           <table className="table-auto border-collapse border w-full">
             <tbody className="px-6 py-4">
-              {Array.from(plutoHeaders).map(([key, value]) => (
-                <tr key={key}>
+              {plutoHeaders.map((c) => (
+                <tr key={c.accessor as keyof PlutoData}>
                   <td className="uppercase font-bold px-6 py-4 border">
-                    {value}
+                    {c.Header as string}
                   </td>
                   <td className="px-6 py-4 border">
-                    {plutoData ? plutoData[key]?.toString() ?? "" : ""}
+                    {plutoData
+                      ? plutoData[c.accessor as keyof PlutoData]?.toString() ??
+                        ""
+                      : ""}
                   </td>
                 </tr>
               ))}

@@ -53,17 +53,28 @@ const plutoColumnMetadata: Map<
   keyof PlutoData,
   ColumnMetadata<PlutoData>
 > = new Map([
+  ["address", { Header: "Address (tax lot)", dataType: ColumnDataTypes.STRING }],
   ["ownername", { Header: "Owner", dataType: ColumnDataTypes.STRING }],
+  ["numbldgs", { Header: "# buildings", dataType: ColumnDataTypes.NUMBER }],
   ["numfloors", { Header: "# floors", dataType: ColumnDataTypes.NUMBER }],
   ["unitstotal", { Header: "# units", dataType: ColumnDataTypes.NUMBER }],
   ["yearbuilt", { Header: "Year built", dataType: ColumnDataTypes.NUMBER }],
 ]);
 
 const hpdViolationColumnMetadata: Map<
-  keyof HpdViolation,
+  keyof HpdViolation | "address",
   ColumnMetadata<HpdViolation>
 > = new Map([
   ["violationid", { Header: "Violation ID", dataType: ColumnDataTypes.NUMBER }],
+  [
+    "address",
+    {
+      Header: "Address",
+      dataType: ColumnDataTypes.STRING,
+      accessor: (row: HpdViolation) => row.housenumber + " " + row.streetname,
+    },
+  ],
+  ["apartment", { Header: "Apartment", dataType: ColumnDataTypes.STRING }],
   [
     "inspectiondate",
     { Header: "Inpsection date", dataType: ColumnDataTypes.DATE },
@@ -76,7 +87,7 @@ const hpdViolationColumnMetadata: Map<
 ]);
 
 const hpdComplaintColumnMetadata: Map<
-  keyof HpdComplaint,
+  keyof HpdComplaint | "address",
   ColumnMetadata<HpdComplaint>
 > = new Map([
   [
@@ -90,18 +101,34 @@ const hpdComplaintColumnMetadata: Map<
       ),
     },
   ],
+  [
+    "address",
+    {
+      Header: "Address",
+      dataType: ColumnDataTypes.STRING,
+      accessor: (row: HpdComplaint) => row.housenumber + " " + row.streetname,
+    },
+  ],
   ["apartment", { Header: "Apartment", dataType: ColumnDataTypes.STRING }],
   ["receiveddate", { Header: "Received date", dataType: ColumnDataTypes.DATE }],
   ["status", { Header: "Status", dataType: ColumnDataTypes.STRING }],
 ]);
 
 const hpdLitigationsColumnMetadata: Map<
-  keyof HpdLitigation,
+  keyof HpdLitigation | "address",
   ColumnMetadata<HpdLitigation>
 > = new Map([
   [
     "litigationid",
     { Header: "Complaint ID", dataType: ColumnDataTypes.NUMBER },
+  ],
+  [
+    "address",
+    {
+      Header: "Address",
+      dataType: ColumnDataTypes.STRING,
+      accessor: (row: HpdLitigation) => row.housenumber + " " + row.streetname,
+    },
   ],
   ["casetype", { Header: "Apartment", dataType: ColumnDataTypes.STRING }],
   ["casestatus", { Header: "Status", dataType: ColumnDataTypes.STRING }],
@@ -117,12 +144,20 @@ const hpdLitigationsColumnMetadata: Map<
 ]);
 
 const hpdVacateOrdersColumnMetadata: Map<
-  keyof HpdVacateOrder,
+  keyof HpdVacateOrder | "address",
   ColumnMetadata<HpdVacateOrder>
 > = new Map([
   [
     "vacateordernumber",
     { Header: "Vacate order number", dataType: ColumnDataTypes.NUMBER },
+  ],
+  [
+    "address",
+    {
+      Header: "Address",
+      dataType: ColumnDataTypes.STRING,
+      accessor: (row: HpdVacateOrder) => row.number + " " + row.street,
+    },
   ],
   [
     "vacateeffectivedate",
@@ -141,10 +176,18 @@ const hpdVacateOrdersColumnMetadata: Map<
 ]);
 
 const dobViolationsColumnMetadata: Map<
-  keyof DobViolation,
+  keyof DobViolation | "address",
   ColumnMetadata<DobViolation>
 > = new Map([
   ["number", { Header: "Number", dataType: ColumnDataTypes.STRING }],
+  [
+    "address",
+    {
+      Header: "Address",
+      dataType: ColumnDataTypes.STRING,
+      accessor: (row: DobViolation) => row.housenumber + " " + row.street,
+    },
+  ],
   ["issuedate", { Header: "Issue date", dataType: ColumnDataTypes.DATE }],
   [
     "violationnumber",
@@ -166,7 +209,7 @@ const dobViolationsColumnMetadata: Map<
 ]);
 
 const dobComplaintsColumnMetadata: Map<
-  keyof DobComplaint,
+  keyof DobComplaint | "address",
   ColumnMetadata<DobComplaint>
 > = new Map([
   [
@@ -174,6 +217,14 @@ const dobComplaintsColumnMetadata: Map<
     {
       Header: "Number",
       dataType: ColumnDataTypes.NUMBER,
+    },
+  ],
+  [
+    "address",
+    {
+      Header: "Address",
+      dataType: ColumnDataTypes.STRING,
+      accessor: (row: DobComplaint) => row.housenumber + " " + row.housestreet,
     },
   ],
   [
@@ -199,9 +250,17 @@ const dobComplaintsColumnMetadata: Map<
 ]);
 
 const dobVacateOrdersColumnMetadata: Map<
-  keyof DobVacateOrder,
+  keyof DobVacateOrder | "address",
   ColumnMetadata<DobVacateOrder>
 > = new Map([
+  [
+    "address",
+    {
+      Header: "Address",
+      dataType: ColumnDataTypes.STRING,
+      accessor: (row: DobVacateOrder) => row.housenumber + " " + row.streetname,
+    },
+  ],
   [
     "lastdispositiondate",
     { Header: "Last disposition date", dataType: ColumnDataTypes.DATE },

@@ -1,10 +1,10 @@
+import { useEffect, useState } from "react";
+
+import { useQuery } from "react-query";
 import NycAddressSearch from "@/components/NycAddressSearch";
 import Table from "@/components/Table";
-
-import { useEffect, useState } from "react";
 import { NycAddress } from "@/components/NycAddressAutocomplate";
-import { useQuery } from "react-query";
-import { HouseData, Metadata } from "./api/house_data";
+import { HouseData } from "@/pages/api/house_data";
 import {
   getColumnsForDataSource,
   getSectionMetadataForDataSource,
@@ -103,7 +103,7 @@ export default function Home() {
 
   return (
     <>
-      <div>
+      <section>
         <NycAddressSearch
           initialAddress={label ?? undefined}
           onSelect={(address: NycAddress) => {
@@ -118,26 +118,26 @@ export default function Home() {
             });
           }}
         />
-      </div>
-      <div className="mt-4">
-        <AddressSearchOptions
-          selectedSearchTypes={new Set(searchTypes ?? [])}
-          onSelectionsChanged={(newSelections) => {
-            setSearchTypes(Array.from(newSelections).sort());
-          }}
-        />
-      </div>
-      {queryEnabled && bbl && bin && postalcode && (
-        <div className="mt-6">
-          <AddressInfo bbl={bbl} bin={bin} postalcode={postalcode} />
-        </div>
-      )}
-      {!!error && (
         <div className="mt-4">
-          <ErrorCallout text="Failed to retrieve house data." />
+          <AddressSearchOptions
+            selectedSearchTypes={new Set(searchTypes ?? [])}
+            onSelectionsChanged={(newSelections) => {
+              setSearchTypes(Array.from(newSelections).sort());
+            }}
+          />
         </div>
-      )}
-      {isLoading && <Loading />}
+        {queryEnabled && bbl && bin && postalcode && (
+          <div className="mt-6">
+            <AddressInfo bbl={bbl} bin={bin} postalcode={postalcode} />
+          </div>
+        )}
+        {!!error && (
+          <div className="mt-4">
+            <ErrorCallout text="Failed to retrieve house data." />
+          </div>
+        )}
+        {isLoading && <Loading />}
+      </section>
       {!isLoading && data && (
         <>
           <section>

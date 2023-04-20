@@ -4,7 +4,9 @@ import { AddressSearchType } from "@/components/AddressSearchOptions";
 
 const plutoSelectArgs = Prisma.validator<Prisma.pluto_latestArgs>()({
   select: {
+    address: true,
     ownername: true,
+    numbldgs: true,
     numfloors: true,
     unitstotal: true,
     yearbuilt: true,
@@ -17,6 +19,8 @@ export type PlutoData = Prisma.pluto_latestGetPayload<typeof plutoSelectArgs>;
 const hpdComplaintsSelectArgs = Prisma.validator<Prisma.hpd_complaintsArgs>()({
   select: {
     complaintid: true,
+    housenumber: true,
+    streetname: true,
     apartment: true,
     receiveddate: true,
     status: true,
@@ -30,6 +34,8 @@ export type HpdComplaint = Prisma.hpd_complaintsGetPayload<
 const dobComplaintsSelectArgs = Prisma.validator<Prisma.dob_complaintsArgs>()({
   select: {
     complaintnumber: true,
+    housenumber: true,
+    housestreet: true,
     complaintcategory: true,
     status: true,
     dateentered: true,
@@ -43,6 +49,9 @@ export type DobComplaint = Prisma.dob_complaintsGetPayload<
 const hpdViolationSelectArgs = Prisma.validator<Prisma.hpd_violationsArgs>()({
   select: {
     violationid: true,
+    housenumber: true,
+    streetname: true,
+    apartment: true,
     inspectiondate: true,
     novdescription: true,
     violationstatus: true,
@@ -56,6 +65,8 @@ export type HpdViolation = Prisma.hpd_violationsGetPayload<
 const dobViolationsSelectArgs = Prisma.validator<Prisma.dob_violationsArgs>()({
   select: {
     number: true,
+    housenumber: true,
+    street: true,
     issuedate: true,
     violationnumber: true,
     violationtypecode: true,
@@ -72,6 +83,8 @@ export type DobViolation = Prisma.dob_violationsGetPayload<
 const hpdLitigaionSelectArgs = Prisma.validator<Prisma.hpd_litigationsArgs>()({
   select: {
     litigationid: true,
+    housenumber: true,
+    streetname: true,
     casetype: true,
     caseopendate: true,
     casestatus: true,
@@ -88,6 +101,8 @@ const hptVactateOrderSelectArgs =
   Prisma.validator<Prisma.hpd_vacateordersArgs>()({
     select: {
       vacateordernumber: true,
+      number: true,
+      street: true,
       vacateeffectivedate: true,
       vacatetype: true,
       primaryvacatereason: true,
@@ -103,6 +118,8 @@ export type HpdVacateOrder = Prisma.hpd_vacateordersGetPayload<
 const dobVacateOrdersSelectArgs =
   Prisma.validator<Prisma.dob_vacate_ordersArgs>()({
     select: {
+      housenumber: true,
+      streetname: true,
       lastdispositiondate: true,
       complaintcategorydescription: true,
       lastdispositioncodedescription: true,

@@ -80,7 +80,7 @@ function Table<TData extends object>({
                 {headerGroup.headers.map((column, colIdx) => (
                   <th
                     scope="col"
-                    className="group px-2 py-1 md:px-6 md:py-3 text-left uppercase tracking-wider text-sm md:text-base"
+                    className="group px-2 py-1 md:py-3 text-left uppercase tracking-wider text-sm md:text-base"
                     {
                       // @ts-ignore
                       ...column.getHeaderProps(column.getSortByToggleProps())
@@ -124,7 +124,7 @@ function Table<TData extends object>({
                       <td
                         {...cell.getCellProps()}
                         key={cellIdx}
-                        className="px-6 py-4 text-sm md:text-base"
+                        className="px-2 py-4 text-sm md:text-base"
                         role="cell"
                       >
                         {

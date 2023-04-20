@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { AddressSearchType } from "@/components/AddressSearchOptions";
+import { captureRejectionSymbol } from "events";
 
 const plutoSelectArgs = Prisma.validator<Prisma.pluto_latestArgs>()({
   select: {
@@ -33,6 +34,7 @@ export type HpdComplaint = Prisma.hpd_complaintsGetPayload<
 
 const dobComplaintsSelectArgs = Prisma.validator<Prisma.dob_complaintsArgs>()({
   select: {
+    dobrundate: true,
     complaintnumber: true,
     housenumber: true,
     housestreet: true,
@@ -204,6 +206,31 @@ function boroughToCapitalizedBorough(borough: string): string {
     default:
       throw new Error("Invalid borough");
   }
+}
+
+function postprocessDobComplaints(complaints: DobComplaint[]): DobComplaint[] {
+  // Go through all complaints and find the max date for each complaint number
+  const maxDobRunDateForComplaint = new Map<number, Date>();
+  for (const complaint of complaints) {
+    if (maxDobRunDateForComplaint.has(complaint.complaintnumber)) {
+      const maxDate = maxDobRunDateForComplaint.get(complaint.complaintnumber)!;
+      if (complaint.dobrundate > maxDate) {
+        maxDobRunDateForComplaint.set(
+          complaint.complaintnumber,
+          complaint.dobrundate
+        );
+      }
+    } else {
+      maxDobRunDateForComplaint.set(
+        complaint.complaintnumber,
+        complaint.dobrundate
+      );
+    }
+  }
+
+  return complaints.filter(
+    (c) => c.dobrundate === maxDobRunDateForComplaint.get(c.complaintnumber)
+  );
 }
 
 const prisma = new PrismaClient();
@@ -489,7 +516,7 @@ export default async function handler(
     hpdLitigations,
     hpdVacateOrders,
     dobViolations,
-    dobComplaints,
+    dobComplaints: postprocessDobComplaints(dobComplaints),
     dobVacateOrders,
     metadata: {
       plutoData: plutoDataMetadata!,

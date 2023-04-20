@@ -220,6 +220,14 @@ const dobComplaintsColumnMetadata: Map<
     {
       Header: "Number",
       dataType: ColumnDataTypes.NUMBER,
+      Cell: ({ cell: { value } }: any) => (
+        <a
+          href={`https://a810-bisweb.nyc.gov/bisweb/OverviewForComplaintServlet?complaintno=${value}`}
+          target="_blank"
+        >
+          {value}
+        </a>
+      ),
     },
   ],
   [

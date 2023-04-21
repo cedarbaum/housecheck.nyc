@@ -141,7 +141,7 @@ export default function Home() {
       {!isLoading && data && (
         <>
           <section>
-            <div className="sticky top-0 bg-white z-[10] border-b">
+            <div className="sticky top-0 bg-white z-[10] border-b mb-4">
               <SectionHeader
                 title="PLUTO data"
                 metadata={data!.metadata!["plutoData"]}
@@ -175,7 +175,7 @@ export default function Home() {
               return (
                 <section key={dataSource}>
                   <div
-                    className="sticky top-0 bg-white border-b"
+                    className="sticky top-0 bg-white border-b mb-4"
                     style={{ zIndex: 10 + dataSourceIdx + 1 }}
                   >
                     <SectionHeader

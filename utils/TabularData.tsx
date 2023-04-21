@@ -18,6 +18,8 @@ import {
 } from "@/pages/api/hpd_complaint_problems";
 import { dobComplaintCodeToDescAndPriorityMap } from "./DobComplaintCodes";
 import { AddressSearchType } from "@/components/AddressSearchOptions";
+import { ReactNode } from "react";
+import { InfoCallout } from "@/components/Callouts";
 
 const DATE_MIN_VALUE = -8640000000000000;
 
@@ -334,6 +336,7 @@ export function getSectionMetadataForDataSource(
   title: string;
   noDataDescription: string;
   validSearchTypes: Set<AddressSearchType>;
+  notifications?: (bbl: string | null, bin: string | null) => ReactNode[];
 } {
   switch (dataSource) {
     case "plutoData":
@@ -371,6 +374,26 @@ export function getSectionMetadataForDataSource(
         title: "DOB violations",
         noDataDescription: "No DOB violations found for this address",
         validSearchTypes: new Set<AddressSearchType>(["bbl", "bin", "address"]),
+        notifications: (bbl, bin) => {
+          if (!bin) {
+            return [];
+          }
+
+          const athEcsViolationsCallout = (
+            <InfoCallout
+              text={
+                <a
+                  href={`https://a810-bisweb.nyc.gov/bisweb/ECBQueryByLocationServlet?allbin=${bin}`}
+                  target="_blank"
+                >
+                  ATH/ECB Violations for BIN
+                  <span aria-hidden="true"> &rarr;</span>
+                </a>
+              }
+            />
+          );
+          return [athEcsViolationsCallout];
+        },
       };
     case "dobComplaints":
       return {

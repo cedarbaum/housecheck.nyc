@@ -152,8 +152,12 @@ export default function Home() {
           </section>
           {tabularDataSources.map((dataSource) =>
             (() => {
-              const { title, noDataDescription, validSearchTypes } =
-                getSectionMetadataForDataSource(dataSource);
+              const {
+                title,
+                noDataDescription,
+                validSearchTypes,
+                notifications,
+              } = getSectionMetadataForDataSource(dataSource);
 
               function formatSearchType(st: AddressSearchType): any {
                 switch (st) {
@@ -187,11 +191,20 @@ export default function Home() {
                         />
                       )
                     ) : (
-                      <Table
-                        columns={getColumnsForDataSource(dataSource)}
-                        data={data[dataSource] as any[]}
-                        paginate
-                      />
+                      <>
+                        {notifications
+                          ?.apply(null, [bbl, bin])
+                          .map((callout, calloutIdx) => (
+                            <div className="my-4" key={calloutIdx}>
+                              {callout}
+                            </div>
+                          ))}
+                        <Table
+                          columns={getColumnsForDataSource(dataSource)}
+                          data={data[dataSource] as any[]}
+                          paginate
+                        />
+                      </>
                     ))}
                 </section>
               );

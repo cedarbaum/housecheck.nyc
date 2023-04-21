@@ -9,7 +9,7 @@ export function InfoCallout({
   details,
   href,
 }: {
-  text: string;
+  text: string | React.ReactNode
   details?: string;
   href?: string;
 }) {

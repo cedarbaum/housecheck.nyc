@@ -32,7 +32,7 @@ export default function SectionHeader({
   metadata: Metadata | undefined;
 }) {
   return (
-    <h1 className="flex flex-col md:flex-row items-baseline justify-between font-bold text-2xl my-8">
+    <h1 className="flex flex-col md:flex-row items-baseline justify-between font-bold text-2xl py-8">
       <div>{title}</div>
       <div className="text-gray-500 text-base mt-2 md:mt-0">
         {metadata?.href ? (

@@ -141,16 +141,18 @@ export default function Home() {
       {!isLoading && data && (
         <>
           <section>
-            <SectionHeader
-              title="PLUTO data"
-              metadata={data!.metadata!["plutoData"]}
-            />
+            <div className="sticky top-0 bg-white z-[10] border-b">
+              <SectionHeader
+                title="PLUTO data"
+                metadata={data!.metadata!["plutoData"]}
+              />
+            </div>
             <PlutoInfo
               plutoData={data?.plutoData}
               searchTypes={new Set(searchTypes ?? [])}
             />
           </section>
-          {tabularDataSources.map((dataSource) =>
+          {tabularDataSources.map((dataSource, dataSourceIdx) =>
             (() => {
               const {
                 title,
@@ -172,10 +174,15 @@ export default function Home() {
 
               return (
                 <section key={dataSource}>
-                  <SectionHeader
-                    title={title}
-                    metadata={data!.metadata![dataSource]}
-                  />
+                  <div
+                    className="sticky top-0 bg-white border-b"
+                    style={{ zIndex: 10 + dataSourceIdx + 1 }}
+                  >
+                    <SectionHeader
+                      title={title}
+                      metadata={data!.metadata![dataSource]}
+                    />
+                  </div>
                   {data &&
                     ((data[dataSource] as any[]).length === 0 ? (
                       searchTypes.filter((st) => validSearchTypes.has(st))

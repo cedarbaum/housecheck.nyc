@@ -386,7 +386,7 @@ export function getSectionMetadataForDataSource(
                   href={`https://a810-bisweb.nyc.gov/bisweb/ECBQueryByLocationServlet?allbin=${bin}`}
                   target="_blank"
                 >
-                  ATH/ECB Violations for BIN
+                  OATH/ECB Violations for BIN
                   <span aria-hidden="true"> &rarr;</span>
                 </a>
               }

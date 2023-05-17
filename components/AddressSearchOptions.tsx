@@ -32,7 +32,7 @@ export default function AddressSearchOptions({
       <legend className="sr-only">Search types</legend>
       <div className="flex justify-between md:justify-end">
         <label className="hidden md:inline-block">
-          <span className="text-gray-700 font-medium md:mr-4">Search using:</span>
+          <span className="text-gray-700 font-medium md:mr-4">Match records with:</span>
         </label>
         <div className="flex justify-between space-x-4">
           {searchTypes.map((searchType) => (

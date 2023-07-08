@@ -2,7 +2,11 @@ import { Fragment, useCallback, useState } from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { Combobox, Dialog, Transition } from "@headlessui/react";
 import debounce from "lodash.debounce";
-import { NycAddressAutocomplate, NycAddress } from "./NycAddressAutocomplate";
+import {
+  NycAddressAutocomplate,
+  NycAddress,
+  Feature,
+} from "./NycAddressAutocomplate";
 import { classNames } from "@/utils/Styling";
 
 export default function NycAddressSearch({
@@ -10,11 +14,12 @@ export default function NycAddressSearch({
   onSelect,
 }: {
   initialAddress?: string;
-  onSelect: (placeDetails: NycAddress) => void;
+  onSelect: (placeDetails: Feature) => void;
 }) {
-  const [selectedSuggestion, setSelectedSuggestion] =
-    useState<NycAddress | null>(null);
-  const [suggestions, setSuggestions] = useState<NycAddress[] | null>(null);
+  const [selectedSuggestion, setSelectedSuggestion] = useState<Feature | null>(
+    null
+  );
+  const [suggestions, setSuggestions] = useState<Feature[] | null>(null);
 
   const debouncedChangeHandler = useCallback(
     debounce(async (text: string) => {
@@ -30,12 +35,12 @@ export default function NycAddressSearch({
 
       const suggestions =
         (await suggesstionsResp.json()) as NycAddressAutocomplate;
-      setSuggestions(suggestions.features.map((f) => f.properties));
+      setSuggestions(suggestions.features);
     }, 300),
     []
   );
 
-  const handleSelect = (suggestion: NycAddress) => {
+  const handleSelect = (suggestion: Feature) => {
     setSelectedSuggestion(suggestion);
     setSuggestions(null);
     onSelect(suggestion);
@@ -54,7 +59,7 @@ export default function NycAddressSearch({
         {suggestions?.map((suggestion) => {
           return (
             <Combobox.Option
-              key={suggestion.id}
+              key={suggestion.properties.id}
               value={suggestion}
               className={({ active }) =>
                 classNames(
@@ -63,7 +68,9 @@ export default function NycAddressSearch({
                 )
               }
             >
-              {({ active, selected }) => <span>{suggestion.label}</span>}
+              {({ active, selected }) => (
+                <span>{suggestion.properties.label}</span>
+              )}
             </Combobox.Option>
           );
         })}
@@ -75,7 +82,7 @@ export default function NycAddressSearch({
     <>
       <div className="relative inset-0 z-10 overflow-y-auto w-full">
         <Combobox
-          onChange={(suggestion: NycAddress) => {
+          onChange={(suggestion: Feature) => {
             handleSelect(suggestion);
           }}
           value={selectedSuggestion}
@@ -93,7 +100,9 @@ export default function NycAddressSearch({
                 setSelectedSuggestion(null);
                 debouncedChangeHandler(event.target.value);
               }}
-              displayValue={(s) => (s as NycAddress | null)?.label ?? initialAddress ?? ""}
+              displayValue={(s) =>
+                (s as NycAddress | null)?.label ?? initialAddress ?? ""
+              }
             />
           </div>
           {renderSuggestions()}

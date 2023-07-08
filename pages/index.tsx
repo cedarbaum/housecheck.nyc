@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useQuery } from "react-query";
 import NycAddressSearch from "@/components/NycAddressSearch";
 import Table from "@/components/Table";
-import { NycAddress } from "@/components/NycAddressAutocomplate";
+import { Feature, NycAddress } from "@/components/NycAddressAutocomplate";
 import { HouseData } from "@/pages/api/house_data";
 import {
   getColumnsForDataSource,
@@ -23,6 +23,11 @@ import Loading from "@/components/Loading";
 import { queryTypes, useQueryState, useQueryStates } from "next-usequerystate";
 import SectionHeader from "@/components/SectionHeader";
 import AddressInfo from "@/components/AddressInfo";
+import * as turf from "@turf/turf";
+
+import "mapbox-gl/dist/mapbox-gl.css";
+import mapboxgl from "mapbox-gl";
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
 const tabularDataSources: Exclude<keyof HouseData, "metadata">[] = [
   "hpdViolations",
@@ -36,7 +41,17 @@ const tabularDataSources: Exclude<keyof HouseData, "metadata">[] = [
 
 export default function Home() {
   const [
-    { label, streetname, housenumber, borough, postalcode, bbl, bin },
+    {
+      label,
+      streetname,
+      housenumber,
+      borough,
+      postalcode,
+      bbl,
+      bin,
+      geometryType,
+      geometryCoordiantes: geometryCoordinates,
+    },
     setAddressData,
   ] = useQueryStates({
     label: queryTypes.string,
@@ -46,6 +61,8 @@ export default function Home() {
     postalcode: queryTypes.string,
     bbl: queryTypes.string,
     bin: queryTypes.string,
+    geometryType: queryTypes.string,
+    geometryCoordiantes: queryTypes.array(queryTypes.float),
   });
 
   const [searchTypes, setSearchTypes] = useQueryState(
@@ -101,20 +118,113 @@ export default function Home() {
     }
   );
 
+  const mapContainer = useRef<HTMLDivElement | null>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+
+  useEffect(() => {
+    if (!map.current) return;
+    if (!map.current.loaded()) return;
+    if (!geometryCoordinates || !geometryType) return;
+
+    const pointSource = map.current.getSource(
+      "address-source"
+    ) as mapboxgl.GeoJSONSource;
+    pointSource.setData({
+      type: "Feature",
+      geometry: {
+        type: geometryType as any,
+        coordinates: geometryCoordinates,
+      },
+      properties: {},
+    });
+
+    map.current.setCenter(
+      turf.centroid({
+        type: geometryType as any,
+        coordinates: geometryCoordinates,
+      }).geometry.coordinates as [number, number]
+    );
+  }, [map.current, geometryCoordinates, geometryType]);
+
+  useEffect(() => {
+    if (map.current) return;
+    if (!mapContainer.current) return;
+    if (!geometryCoordinates || !geometryType) return;
+
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: "mapbox://styles/mapbox/streets-v12",
+      center: turf.centroid({
+        type: geometryType as any,
+        coordinates: geometryCoordinates,
+      }).geometry.coordinates as [number, number],
+      zoom: 15,
+    });
+
+    // Add GeoJSON data
+    map.current.on("load", function () {
+      map.current!.addSource("address-source", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: {
+            type: geometryType as any,
+            coordinates: geometryCoordinates,
+          },
+          properties: {},
+        },
+      });
+
+      if (geometryType === "Point") {
+        map.current!.addLayer({
+          id: "point",
+          type: "circle",
+          source: "address-source",
+          paint: {
+            "circle-radius": 10,
+            "circle-color": "#2563eb",
+          },
+        });
+      } else if (geometryType === "LineString") {
+        map.current!.addLayer({
+          id: "line",
+          type: "line",
+          source: "address-source",
+          paint: {
+            "line-color": "#2563eb",
+            "line-width": 5,
+          },
+        });
+      } else if (geometryType === "Polygon") {
+        map.current!.addLayer({
+          id: "polygon",
+          type: "fill",
+          source: "address-source",
+          paint: {
+            "fill-color": "#2563eb",
+            "fill-opacity": 0.5,
+          },
+        });
+      }
+    });
+  });
+
   return (
     <>
       <section>
         <NycAddressSearch
           initialAddress={label ?? undefined}
-          onSelect={(address: NycAddress) => {
+          onSelect={(address: Feature) => {
             setAddressData({
-              label: address.label,
-              streetname: address.street,
-              housenumber: address.housenumber,
-              borough: address.borough,
-              postalcode: address.postalcode,
-              bbl: address.addendum?.pad?.bbl,
-              bin: address.addendum?.pad?.bin,
+              label: address.properties.label,
+              streetname: address.properties.street,
+              housenumber: address.properties.housenumber,
+              borough: address.properties.borough,
+              postalcode: address.properties.postalcode,
+              bbl: address.properties.addendum?.pad?.bbl,
+              bin: address.properties.addendum?.pad?.bin,
+              geometryType: address.geometry.type,
+              geometryCoordiantes: address.geometry.coordinates,
             });
           }}
         />
@@ -131,6 +241,9 @@ export default function Home() {
             <AddressInfo bbl={bbl} bin={bin} postalcode={postalcode} />
           </div>
         )}
+        <div>
+          <div ref={mapContainer} className="h-[250px] my-2" />
+        </div>
         {!!error && (
           <div className="mt-4">
             <ErrorCallout text="Failed to retrieve house data." />

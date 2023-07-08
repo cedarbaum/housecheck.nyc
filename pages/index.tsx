@@ -242,7 +242,7 @@ export default function Home() {
           </div>
         )}
         <div>
-          <div ref={mapContainer} className="h-[250px] my-2" />
+          <div ref={mapContainer} className="h-[150px] md:h-[250px] my-2" />
         </div>
         {!!error && (
           <div className="mt-4">

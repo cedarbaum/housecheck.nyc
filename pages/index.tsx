@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery } from "react-query";
 import NycAddressSearch from "@/components/NycAddressSearch";
 import Table from "@/components/Table";
-import { Feature, NycAddress } from "@/components/NycAddressAutocomplate";
+import { Feature } from "@/components/NycAddressAutocomplate";
 import { HouseData } from "@/pages/api/house_data";
 import {
   getColumnsForDataSource,
@@ -20,7 +20,7 @@ import AddressSearchOptions, {
 } from "@/components/AddressSearchOptions";
 import PlutoInfo from "@/components/PlutoInfo";
 import Loading from "@/components/Loading";
-import { queryTypes, useQueryState, useQueryStates } from "next-usequerystate";
+import { queryTypes, useQueryState } from "next-usequerystate";
 import SectionHeader from "@/components/SectionHeader";
 import AddressInfo from "@/components/AddressInfo";
 import * as turf from "@turf/turf";
@@ -39,10 +39,20 @@ const tabularDataSources: Exclude<keyof HouseData, "metadata">[] = [
   "dobVacateOrders",
 ];
 
+type AddressMetadata = {
+  streetname: string | undefined | null;
+  housenumber: string | undefined | null;
+  borough: string | undefined | null;
+  postalcode: string | undefined | null;
+  bbl: string | undefined | null;
+  bin: string | undefined | null;
+  geometryType: string | undefined | null;
+  geometryCoordinates: number[] | undefined | null;
+};
+
 export default function Home() {
   const [
     {
-      label,
       streetname,
       housenumber,
       borough,
@@ -50,21 +60,12 @@ export default function Home() {
       bbl,
       bin,
       geometryType,
-      geometryCoordiantes: geometryCoordinates,
+      geometryCoordinates,
     },
     setAddressData,
-  ] = useQueryStates({
-    label: queryTypes.string,
-    streetname: queryTypes.string,
-    housenumber: queryTypes.string,
-    borough: queryTypes.string,
-    postalcode: queryTypes.string,
-    bbl: queryTypes.string,
-    bin: queryTypes.string,
-    geometryType: queryTypes.string,
-    geometryCoordiantes: queryTypes.array(queryTypes.float),
-  });
+  ] = useState<AddressMetadata>({} as AddressMetadata);
 
+  const [text, setText] = useQueryState("text", queryTypes.string);
   const [searchTypes, setSearchTypes] = useQueryState(
     "search_types",
     queryTypes
@@ -144,7 +145,7 @@ export default function Home() {
         coordinates: geometryCoordinates,
       }).geometry.coordinates as [number, number]
     );
-  }, [map.current, geometryCoordinates, geometryType]);
+  }, [geometryCoordinates, geometryType]);
 
   useEffect(() => {
     if (map.current) return;
@@ -213,10 +214,10 @@ export default function Home() {
     <>
       <section>
         <NycAddressSearch
-          initialAddress={label ?? undefined}
+          initialAddress={text ?? undefined}
           onSelect={(address: Feature) => {
+            setText(address.properties.label);
             setAddressData({
-              label: address.properties.label,
               streetname: address.properties.street,
               housenumber: address.properties.housenumber,
               borough: address.properties.borough,
@@ -224,7 +225,7 @@ export default function Home() {
               bbl: address.properties.addendum?.pad?.bbl,
               bin: address.properties.addendum?.pad?.bin,
               geometryType: address.geometry.type,
-              geometryCoordiantes: address.geometry.coordinates,
+              geometryCoordinates: address.geometry.coordinates,
             });
           }}
         />

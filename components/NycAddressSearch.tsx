@@ -1,6 +1,6 @@
-import { Fragment, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
-import { Combobox, Dialog, Transition } from "@headlessui/react";
+import { Combobox } from "@headlessui/react";
 import debounce from "lodash.debounce";
 import {
   NycAddressAutocomplate,
@@ -8,6 +8,7 @@ import {
   Feature,
 } from "./NycAddressAutocomplate";
 import { classNames } from "@/utils/Styling";
+import useAsyncEffect from "use-async-effect";
 
 export default function NycAddressSearch({
   initialAddress,
@@ -39,6 +40,28 @@ export default function NycAddressSearch({
     }, 300),
     []
   );
+
+  useAsyncEffect(async () => {
+    if (!initialAddress || initialAddress === "") {
+      return;
+    }
+
+    const searchResp = await fetch(
+      "https://geosearch.planninglabs.nyc/v2/search?" +
+        new URLSearchParams({ text: initialAddress, size: "1" })
+    );
+
+    if (!searchResp.ok) {
+      return;
+    }
+
+    const searchResults = (await searchResp.json()) as NycAddressAutocomplate;
+    if (searchResults?.features?.length === 0) {
+      return;
+    }
+
+    handleSelect(searchResults.features[0]);
+  }, [initialAddress]);
 
   const handleSelect = (suggestion: Feature) => {
     setSelectedSuggestion(suggestion);

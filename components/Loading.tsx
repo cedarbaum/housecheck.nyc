@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 
+const loadingEmojis = ["🗽", "🏠", "🏢"];
+
 export default function Loading() {
   // NYC themed loading emojis
-  const loadingEmojis = ["🗽", "🏠", "🏢"];
   const [loadingEmojiIndex, setLoadingEmojiIndex] = useState(0);
 
   useEffect(() => {

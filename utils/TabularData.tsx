@@ -336,7 +336,10 @@ export function getSectionMetadataForDataSource(
   title: string;
   noDataDescription: string;
   validSearchTypes: Set<AddressSearchType>;
-  notifications?: (bbl: string | null, bin: string | null) => ReactNode[];
+  notifications?: (
+    bbl: string | null | undefined,
+    bin: string | null | undefined
+  ) => ReactNode[];
 } {
   switch (dataSource) {
     case "plutoData":

@@ -1,4 +1,4 @@
-import React, { ButtonHTMLAttributes, useMemo } from "react";
+import React, { ButtonHTMLAttributes } from "react";
 import {
   useTable,
   useSortBy,

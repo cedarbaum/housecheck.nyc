@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-
 export type AddressSearchType = "address" | "bbl" | "bin";
 
 export default function AddressSearchOptions({

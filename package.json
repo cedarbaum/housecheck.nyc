@@ -7,12 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate --data-proxy"
+    "postinstall": "prisma generate --no-engine"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.14",
     "@heroicons/react": "^2.0.17",
-    "@prisma/client": "^4.12.0",
+    "@prisma/client": "^5.5.2",
+    "@prisma/extension-accelerate": "^0.6.2",
     "@tailwindcss/forms": "^0.5.3",
     "@turf/turf": "^6.5.0",
     "@types/lodash.debounce": "^4.0.7",
@@ -42,6 +43,6 @@
     "use-async-effect": "^2.2.7"
   },
   "devDependencies": {
-    "prisma": "^4.12.0"
+    "prisma": "^5.5.2"
   }
 }

@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Prisma, PrismaClient } from "@prisma/client";
+import { withAccelerate } from "@prisma/extension-accelerate";
 import { AddressSearchType } from "@/components/AddressSearchOptions";
-import { captureRejectionSymbol } from "events";
 
 const plutoSelectArgs = Prisma.validator<Prisma.pluto_latestArgs>()({
   select: {
@@ -233,7 +233,7 @@ function postprocessDobComplaints(complaints: DobComplaint[]): DobComplaint[] {
   );
 }
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient().$extends(withAccelerate())
 
 export default async function handler(
   req: NextApiRequest,

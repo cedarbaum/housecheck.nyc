@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Prisma, PrismaClient } from "@prisma/client";
+import { withAccelerate } from "@prisma/extension-accelerate";
 
 const hpdComplaintProblemsSelectArgs =
   Prisma.validator<Prisma.hpd_complaint_problemsArgs>()({
@@ -39,7 +40,7 @@ const metadataSelectArgs = Prisma.validator<Prisma.metadataArgs>()({
 
 export type Metadata = Prisma.metadataGetPayload<typeof metadataSelectArgs>;
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient().$extends(withAccelerate())
 
 export default async function handler(
   req: NextApiRequest,

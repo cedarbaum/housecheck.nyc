@@ -82,7 +82,7 @@ const hpdViolationColumnMetadata: Map<
   ["apartment", { Header: "Apartment", dataType: ColumnDataTypes.STRING }],
   [
     "inspectiondate",
-    { Header: "Inpsection date", dataType: ColumnDataTypes.DATE },
+    { Header: "Inspection date", dataType: ColumnDataTypes.DATE },
   ],
   [
     "novdescription",

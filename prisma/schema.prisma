@@ -316,7 +316,7 @@ model hpd_litigations {
 }
 
 model hpd_complaint_problems {
-  problemid         Int       @id(map: "hpd_complaint_problems_secondary_pkey")
+  problemid         Int       @id(map: "hpd_complaint_problems_secondary_pkey1")
   complaintid       Int?
   unittypeid        Int?      @db.SmallInt
   unittype          String?
@@ -335,11 +335,11 @@ model hpd_complaint_problems {
   statusdate        DateTime? @db.Date
   statusdescription String?
 
-  @@index([complaintid], map: "hpd_complaint_problems_secondary_complaintid_idx1")
+  @@index([complaintid], map: "hpd_complaint_problems_secondary_complaintid_idx")
 }
 
 model hpd_complaints {
-  complaintid    Int       @id(map: "hpd_complaints_secondary_pkey")
+  complaintid    Int       @id(map: "hpd_complaints_secondary_pkey1")
   buildingid     Int?
   boroughid      Int?
   borough        String?
@@ -356,11 +356,11 @@ model hpd_complaints {
   statusdate     DateTime? @db.Date
   bbl            String?   @db.Char(10)
 
-  @@index([bbl], map: "hpd_complaints_secondary_bbl_idx1")
-  @@index([borough], map: "hpd_complaints_secondary_borough_idx1")
-  @@index([buildingid], map: "hpd_complaints_secondary_buildingid_idx1")
-  @@index([housenumber], map: "hpd_complaints_secondary_housenumber_idx1")
-  @@index([streetname], map: "hpd_complaints_secondary_streetname_idx1")
+  @@index([bbl], map: "hpd_complaints_secondary_bbl_idx")
+  @@index([borough], map: "hpd_complaints_secondary_borough_idx")
+  @@index([buildingid], map: "hpd_complaints_secondary_buildingid_idx")
+  @@index([housenumber], map: "hpd_complaints_secondary_housenumber_idx")
+  @@index([streetname], map: "hpd_complaints_secondary_streetname_idx")
 }
 
 model hpd_vacateorders {
@@ -409,10 +409,10 @@ model dob_complaints {
   inspectiondate    DateTime? @db.Date
   dobrundate        DateTime  @db.Date
 
-  @@id([complaintnumber, status, dateentered, bin, complaintcategory, dobrundate], map: "dob_complaints_secondary_pkey1")
-  @@index([housenumber], map: "dob_complaints_secondary_housenumber_idx")
-  @@index([housestreet], map: "dob_complaints_secondary_housestreet_idx")
-  @@index([zipcode], map: "dob_complaints_secondary_zipcode_idx")
+  @@id([complaintnumber, status, dateentered, bin, complaintcategory, dobrundate], map: "dob_complaints_secondary_pkey")
+  @@index([housenumber], map: "dob_complaints_secondary_housenumber_idx1")
+  @@index([housestreet], map: "dob_complaints_secondary_housestreet_idx1")
+  @@index([zipcode], map: "dob_complaints_secondary_zipcode_idx1")
 }
 
 model dob_vacate_orders {
@@ -438,10 +438,52 @@ model dob_vacate_orders {
 model metadata {
   dataset              String    @id
   status               String
-  last_updated         DateTime  @db.Timestamp(6)
+  last_updated         DateTime? @db.Timestamp(6)
   version              String?   @db.Char(10)
   start_date           DateTime? @db.Timestamptz(6)
   end_date             DateTime? @db.Timestamptz(6)
   data_range_precision String?
   href                 String?
+}
+
+model hpd_complaints_and_problems {
+  receiveddate           DateTime? @db.Date
+  problemid              Int?
+  complaintid            Int       @id(map: "hpd_complaints_and_problems_secondary_pkey")
+  buildingid             Int?
+  borough                String?
+  housenumber            String?
+  streetname             String?
+  postcode               String?
+  block                  Int?
+  lot                    Int?
+  apartment              String?
+  communityboard         Int?
+  unittype               String?
+  spacetype              String?
+  type                   String?
+  majorcategory          String?
+  minorcategory          String?
+  problemcode            String?
+  complaintstatus        String?
+  complaintstatusdate    DateTime? @db.Date
+  problemstatus          String?
+  problemstatusdate      DateTime? @db.Date
+  statusdescription      String?
+  problemduplicateflag   Boolean?
+  complaintanonymousflag Boolean?
+  uniquekey              String?
+  latitude               Decimal?  @db.Decimal
+  longitude              Decimal?  @db.Decimal
+  councildistrict        String?   @db.Char(2)
+  censustract            String?
+  bin                    String?   @db.Char(7)
+  bbl                    String?   @db.Char(10)
+  nta                    String?
+
+  @@index([bbl], map: "hpd_complaints_and_problems_secondary_bbl_idx")
+  @@index([borough], map: "hpd_complaints_and_problems_secondary_borough_idx")
+  @@index([buildingid], map: "hpd_complaints_and_problems_secondary_buildingid_idx")
+  @@index([housenumber], map: "hpd_complaints_and_problems_secondary_housenumber_idx")
+  @@index([streetname], map: "hpd_complaints_and_problems_secondary_streetname_idx")
 }

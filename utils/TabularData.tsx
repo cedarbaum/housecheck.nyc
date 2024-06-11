@@ -116,7 +116,7 @@ const hpdComplaintColumnMetadata: Map<
   ],
   ["apartment", { Header: "Apartment", dataType: ColumnDataTypes.STRING }],
   ["receiveddate", { Header: "Received date", dataType: ColumnDataTypes.DATE }],
-  ["status", { Header: "Status", dataType: ColumnDataTypes.STRING }],
+  ["complaintstatus", { Header: "Status", dataType: ColumnDataTypes.STRING }],
 ]);
 
 const hpdLitigationsColumnMetadata: Map<
@@ -309,10 +309,10 @@ const hpdComplaintProblemsColumnMetadata: Map<
     "minorcategory",
     { Header: "Minor category", dataType: ColumnDataTypes.STRING },
   ],
-  ["code", { Header: "Code", dataType: ColumnDataTypes.STRING }],
-  ["status", { Header: "Status", dataType: ColumnDataTypes.STRING }],
+  ["problemcode", { Header: "Code", dataType: ColumnDataTypes.STRING }],
+  ["complaintstatus", { Header: "Status", dataType: ColumnDataTypes.STRING }],
   ["statusdescription", { Header: "Status", dataType: ColumnDataTypes.STRING }],
-  ["statusdate", { Header: "Status date", dataType: ColumnDataTypes.DATE }],
+  ["complaintstatusdate", { Header: "Status date", dataType: ColumnDataTypes.DATE }],
 ]);
 
 const dataSourceToHeaders = new Map<

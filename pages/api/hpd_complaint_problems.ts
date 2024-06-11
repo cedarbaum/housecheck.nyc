@@ -3,7 +3,7 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 const hpdComplaintProblemsSelectArgs =
-  Prisma.validator<Prisma.hpd_complaint_problemsArgs>()({
+  Prisma.validator<Prisma.hpd_complaints_and_problemsDefaultArgs>()({
     select: {
       problemid: true,
       unittype: true,
@@ -11,14 +11,14 @@ const hpdComplaintProblemsSelectArgs =
       type: true,
       majorcategory: true,
       minorcategory: true,
-      code: true,
-      status: true,
-      statusdate: true,
+      problemcode: true,
+      complaintstatus: true,
+      complaintstatusdate: true,
       statusdescription: true,
     },
   });
 
-export type HpdComplaintProblem = Prisma.hpd_complaint_problemsGetPayload<
+export type HpdComplaintProblem = Prisma.hpd_complaints_and_problemsGetPayload<
   typeof hpdComplaintProblemsSelectArgs
 >;
 
@@ -54,7 +54,7 @@ export default async function handler(
 
   const [hpdComplaintProblems, hpdComplaintProblemsMetadata] =
     await prisma.$transaction([
-      prisma.hpd_complaint_problems.findMany({
+      prisma.hpd_complaints_and_problems.findMany({
         ...hpdComplaintProblemsSelectArgs,
         where: {
           complaintid: parseInt(complaint_id),
@@ -72,9 +72,6 @@ export default async function handler(
     hpdComplaintProblems,
     metadata: {
       ...hpdComplaintProblemsMetadata!,
-      // TODO: This is a hack to get around the fact that the metadata table only stores 1 href
-      // per dataset and hpd_complaints has 2 tables.
-      href: "https://data.cityofnewyork.us/Housing-Development/Complaint-Problems/a2nx-4u46",
     },
   });
 }

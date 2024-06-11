@@ -17,18 +17,18 @@ const plutoSelectArgs = Prisma.validator<Prisma.pluto_latestArgs>()({
 
 export type PlutoData = Prisma.pluto_latestGetPayload<typeof plutoSelectArgs>;
 
-const hpdComplaintsSelectArgs = Prisma.validator<Prisma.hpd_complaintsArgs>()({
+const hpdComplaintsSelectArgs = Prisma.validator<Prisma.hpd_complaints_and_problemsArgs>()({
   select: {
     complaintid: true,
     housenumber: true,
     streetname: true,
     apartment: true,
     receiveddate: true,
-    status: true,
+    complaintstatus: true,
   },
 });
 
-export type HpdComplaint = Prisma.hpd_complaintsGetPayload<
+export type HpdComplaint = Prisma.hpd_complaints_and_problemsGetPayload<
   typeof hpdComplaintsSelectArgs
 >;
 
@@ -313,7 +313,7 @@ export default async function handler(
   ]);
 
   const [hpdComplaints, hpdComplaintsMetadata] = await prisma.$transaction([
-    prisma.hpd_complaints.findMany({
+    prisma.hpd_complaints_and_problems.findMany({
       ...hpdComplaintsSelectArgs,
       where: {
         OR: [

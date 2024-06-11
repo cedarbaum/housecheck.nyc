@@ -18,9 +18,7 @@ function formatDataMetadata(metadata: Metadata | undefined) {
   } else if (metadata.version) {
     return `Data version ${metadata.version}`;
   } else {
-    return `Data last synced ${DateTime.fromJSDate(metadata.last_updated)
-      .setZone("UTC")
-      .toLocaleString()}`;
+    return `Data last synced ${metadata.last_updated ? DateTime.fromJSDate(metadata.last_updated).setZone("UTC").toLocaleString() : "Unknown"}`;
   }
 }
 

@@ -332,6 +332,7 @@ export default async function handler(
           },
         ],
       },
+      distinct: ["complaintid"],
       orderBy: {
         receiveddate: "desc",
       },

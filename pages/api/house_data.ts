@@ -1,5 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { Prisma, PrismaClient } from "@prisma/client";
+export const runtime = "edge";
+
+import { Prisma, PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { AddressSearchType } from "@/components/AddressSearchOptions";
 
@@ -17,16 +18,17 @@ const plutoSelectArgs = Prisma.validator<Prisma.pluto_latestArgs>()({
 
 export type PlutoData = Prisma.pluto_latestGetPayload<typeof plutoSelectArgs>;
 
-const hpdComplaintsSelectArgs = Prisma.validator<Prisma.hpd_complaints_and_problemsArgs>()({
-  select: {
-    complaintid: true,
-    housenumber: true,
-    streetname: true,
-    apartment: true,
-    receiveddate: true,
-    complaintstatus: true,
-  },
-});
+const hpdComplaintsSelectArgs =
+  Prisma.validator<Prisma.hpd_complaints_and_problemsArgs>()({
+    select: {
+      complaintid: true,
+      housenumber: true,
+      streetname: true,
+      apartment: true,
+      receiveddate: true,
+      complaintstatus: true,
+    },
+  });
 
 export type HpdComplaint = Prisma.hpd_complaints_and_problemsGetPayload<
   typeof hpdComplaintsSelectArgs
@@ -217,42 +219,39 @@ function postprocessDobComplaints(complaints: DobComplaint[]): DobComplaint[] {
       if (complaint.dobrundate > maxDate) {
         maxDobRunDateForComplaint.set(
           complaint.complaintnumber,
-          complaint.dobrundate
+          complaint.dobrundate,
         );
       }
     } else {
       maxDobRunDateForComplaint.set(
         complaint.complaintnumber,
-        complaint.dobrundate
+        complaint.dobrundate,
       );
     }
   }
 
   return complaints.filter(
-    (c) => c.dobrundate === maxDobRunDateForComplaint.get(c.complaintnumber)
+    (c) => c.dobrundate === maxDobRunDateForComplaint.get(c.complaintnumber),
   );
 }
 
-const prisma = new PrismaClient().$extends(withAccelerate())
+const prisma = new PrismaClient().$extends(withAccelerate());
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<HouseData | { error: string }>
-) {
+export default async function handler(req: Request) {
   let { streetname, housenumber, borough, zipcode, bbl, bin, search_types } =
-    req.query;
+    getQueryParams(req);
 
-  search_types = search_types as string | undefined;
+  search_types = search_types as string | null;
   const searchTypes = new Set<AddressSearchType>(
-    search_types?.split(",").map((s) => s as AddressSearchType) ?? []
+    search_types?.split(",").map((s) => s as AddressSearchType) ?? [],
   );
 
   streetname = (streetname as string).toUpperCase();
   housenumber = (housenumber as string).toUpperCase();
   borough = (borough as string).toUpperCase();
-  zipcode = zipcode as string | undefined;
-  bbl = bbl as string | undefined;
-  bin = bin as string | undefined;
+  zipcode = zipcode as string | null;
+  bbl = bbl as string | null;
+  bin = bin as string | null;
 
   const [plutoData, plutoDataMetadata] = await prisma.$transaction([
     prisma.pluto_latest.findFirst({
@@ -510,24 +509,42 @@ export default async function handler(
     }),
   ]);
 
-  res.status(200).json({
-    plutoData,
-    hpdViolations,
-    hpdComplaints,
-    hpdLitigations,
-    hpdVacateOrders,
-    dobViolations,
-    dobComplaints: postprocessDobComplaints(dobComplaints),
-    dobVacateOrders,
-    metadata: {
-      plutoData: plutoDataMetadata!,
-      hpdViolations: hpdViolationsMetadata!,
-      hpdComplaints: hpdComplaintsMetadata!,
-      hpdLitigations: hpdLitigationsMetadata!,
-      hpdVacateOrders: hpdVacateOrdersMetadata!,
-      dobViolations: dobViolationsMetadata!,
-      dobComplaints: dobComplaintsMetadata!,
-      dobVacateOrders: dobVacateOrdersMetadata!,
+  return new Response(
+    JSON.stringify({
+      plutoData,
+      hpdViolations,
+      hpdComplaints,
+      hpdLitigations,
+      hpdVacateOrders,
+      dobViolations,
+      dobComplaints: postprocessDobComplaints(dobComplaints),
+      dobVacateOrders,
+      metadata: {
+        plutoData: plutoDataMetadata!,
+        hpdViolations: hpdViolationsMetadata!,
+        hpdComplaints: hpdComplaintsMetadata!,
+        hpdLitigations: hpdLitigationsMetadata!,
+        hpdVacateOrders: hpdVacateOrdersMetadata!,
+        dobViolations: dobViolationsMetadata!,
+        dobComplaints: dobComplaintsMetadata!,
+        dobVacateOrders: dobVacateOrdersMetadata!,
+      },
+    }),
+    {
+      status: 200,
     },
-  });
+  );
+}
+
+function getQueryParams(req: Request) {
+  const searchParams = new URL(req.url ?? "").searchParams;
+  return {
+    streetname: searchParams.get("streetname"),
+    housenumber: searchParams.get("housenumber"),
+    borough: searchParams.get("borough"),
+    zipcode: searchParams.get("zipcode"),
+    bbl: searchParams.get("bbl"),
+    bin: searchParams.get("bin"),
+    search_types: searchParams.get("search_types"),
+  };
 }

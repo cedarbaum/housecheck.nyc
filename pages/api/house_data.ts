@@ -17,16 +17,17 @@ const plutoSelectArgs = Prisma.validator<Prisma.pluto_latestArgs>()({
 
 export type PlutoData = Prisma.pluto_latestGetPayload<typeof plutoSelectArgs>;
 
-const hpdComplaintsSelectArgs = Prisma.validator<Prisma.hpd_complaints_and_problemsArgs>()({
-  select: {
-    complaintid: true,
-    housenumber: true,
-    streetname: true,
-    apartment: true,
-    receiveddate: true,
-    complaintstatus: true,
-  },
-});
+const hpdComplaintsSelectArgs =
+  Prisma.validator<Prisma.hpd_complaints_and_problemsArgs>()({
+    select: {
+      complaintid: true,
+      housenumber: true,
+      streetname: true,
+      apartment: true,
+      receiveddate: true,
+      complaintstatus: true,
+    },
+  });
 
 export type HpdComplaint = Prisma.hpd_complaints_and_problemsGetPayload<
   typeof hpdComplaintsSelectArgs
@@ -217,34 +218,34 @@ function postprocessDobComplaints(complaints: DobComplaint[]): DobComplaint[] {
       if (complaint.dobrundate > maxDate) {
         maxDobRunDateForComplaint.set(
           complaint.complaintnumber,
-          complaint.dobrundate
+          complaint.dobrundate,
         );
       }
     } else {
       maxDobRunDateForComplaint.set(
         complaint.complaintnumber,
-        complaint.dobrundate
+        complaint.dobrundate,
       );
     }
   }
 
   return complaints.filter(
-    (c) => c.dobrundate === maxDobRunDateForComplaint.get(c.complaintnumber)
+    (c) => c.dobrundate === maxDobRunDateForComplaint.get(c.complaintnumber),
   );
 }
 
-const prisma = new PrismaClient().$extends(withAccelerate())
+const prisma = new PrismaClient().$extends(withAccelerate());
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<HouseData | { error: string }>
+  res: NextApiResponse<HouseData | { error: string }>,
 ) {
   let { streetname, housenumber, borough, zipcode, bbl, bin, search_types } =
     req.query;
 
   search_types = search_types as string | undefined;
   const searchTypes = new Set<AddressSearchType>(
-    search_types?.split(",").map((s) => s as AddressSearchType) ?? []
+    search_types?.split(",").map((s) => s as AddressSearchType) ?? [],
   );
 
   streetname = (streetname as string).toUpperCase();
@@ -254,7 +255,7 @@ export default async function handler(
   bbl = bbl as string | undefined;
   bin = bin as string | undefined;
 
-  const [plutoData, plutoDataMetadata] = await prisma.$transaction([
+  const plutoTask = prisma.$transaction([
     prisma.pluto_latest.findFirst({
       ...plutoSelectArgs,
       where: {
@@ -269,7 +270,7 @@ export default async function handler(
     }),
   ]);
 
-  const [hpdViolations, hpdViolationsMetadata] = await prisma.$transaction([
+  const hpdViolationsTask = prisma.$transaction([
     prisma.hpd_violations.findMany({
       ...hpdViolationSelectArgs,
       where: {
@@ -312,7 +313,7 @@ export default async function handler(
     }),
   ]);
 
-  const [hpdComplaints, hpdComplaintsMetadata] = await prisma.$transaction([
+  const hpdComplaintsTask = prisma.$transaction([
     prisma.hpd_complaints_and_problems.findMany({
       ...hpdComplaintsSelectArgs,
       where: {
@@ -345,7 +346,7 @@ export default async function handler(
     }),
   ]);
 
-  const [hpdLitigations, hpdLitigationsMetadata] = await prisma.$transaction([
+  const hpdLitigationsTask = prisma.$transaction([
     prisma.hpd_litigations.findMany({
       ...hpdLitigaionSelectArgs,
       where: {
@@ -378,7 +379,7 @@ export default async function handler(
     }),
   ]);
 
-  const [hpdVacateOrders, hpdVacateOrdersMetadata] = await prisma.$transaction([
+  const hpdVacateOrdersTask = prisma.$transaction([
     prisma.hpd_vacateorders.findMany({
       ...hptVactateOrderSelectArgs,
       where: {
@@ -411,7 +412,7 @@ export default async function handler(
     }),
   ]);
 
-  const [dobComplaints, dobComplaintsMetadata] = await prisma.$transaction([
+  const dobComplaintsTask = prisma.$transaction([
     prisma.dob_complaints.findMany({
       ...dobComplaintsSelectArgs,
       where: {
@@ -443,7 +444,7 @@ export default async function handler(
     }),
   ]);
 
-  const [dobViolations, dobViolationsMetadata] = await prisma.$transaction([
+  const dobViolationsTask = prisma.$transaction([
     prisma.dob_violations.findMany({
       ...dobViolationsSelectArgs,
       where: {
@@ -476,7 +477,7 @@ export default async function handler(
     }),
   ]);
 
-  const [dobVacateOrders, dobVacateOrdersMetadata] = await prisma.$transaction([
+  const dobVacateOrdersTask = prisma.$transaction([
     prisma.dob_vacate_orders.findMany({
       ...dobVacateOrdersSelectArgs,
       where: {
@@ -508,6 +509,26 @@ export default async function handler(
         dataset: "dob_vacate_orders",
       },
     }),
+  ]);
+
+  const [
+    [plutoData, plutoDataMetadata],
+    [hpdViolations, hpdViolationsMetadata],
+    [hpdComplaints, hpdComplaintsMetadata],
+    [hpdLitigations, hpdLitigationsMetadata],
+    [hpdVacateOrders, hpdVacateOrdersMetadata],
+    [dobComplaints, dobComplaintsMetadata],
+    [dobViolations, dobViolationsMetadata],
+    [dobVacateOrders, dobVacateOrdersMetadata],
+  ] = await Promise.all([
+    plutoTask,
+    hpdViolationsTask,
+    hpdComplaintsTask,
+    hpdLitigationsTask,
+    hpdVacateOrdersTask,
+    dobComplaintsTask,
+    dobViolationsTask,
+    dobVacateOrdersTask,
   ]);
 
   res.status(200).json({

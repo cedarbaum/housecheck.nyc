@@ -172,8 +172,8 @@ function postprocessDobComplaints(complaints: DobComplaint[]): DobComplaint[] {
     if (maxDobRunDateForComplaint.has(complaint.complaintnumber)) {
       const maxDate = maxDobRunDateForComplaint.get(complaint.complaintnumber)!;
 
-      const parsedMaxDate = formatDbTimeToISODate(maxDate);
-      const parsedComplaintDate = formatDbTimeToISODate(complaint.dobrundate);
+      const parsedMaxDate = formatDbTimeToISODate(maxDate, "America/New_York");
+      const parsedComplaintDate = formatDbTimeToISODate(complaint.dobrundate, "America/New_York");
 
       if (parsedComplaintDate > parsedMaxDate) {
         maxDobRunDateForComplaint.set(

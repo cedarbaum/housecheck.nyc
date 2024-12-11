@@ -455,7 +455,7 @@ function getDateAccessor(row: any, accessor: string): Date {
   }
 
   if (typeof value === "string") {
-    return formatDbTimeToISODate(value);
+    return formatDbTimeToISODate(value, "America/New_York");
   }
 
   return value;
@@ -464,7 +464,7 @@ function getDateAccessor(row: any, accessor: string): Date {
 function formatDate(date: Date | string | null): string {
   let parsedDate;
   if (typeof date === "string") {
-    parsedDate = formatDbTimeToISODate(date);
+    parsedDate = formatDbTimeToISODate(date, "America/New_York");
   } else {
     parsedDate = date;
   }
@@ -473,5 +473,5 @@ function formatDate(date: Date | string | null): string {
     return "";
   }
 
-  return DateTime.fromJSDate(parsedDate).toUTC().toFormat("yyyy-MM-dd");
+  return DateTime.fromJSDate(parsedDate).toLocaleString(DateTime.DATE_SHORT);
 }

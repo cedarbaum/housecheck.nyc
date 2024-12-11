@@ -1,5 +1,9 @@
-export function formatDbTimeToISODate(dateStr: string) {
-  const timestamp = Date.parse(dateStr.replace(" ", "T"));
-  const parsedDate = new Date(timestamp);
-  return parsedDate;
+import { DateTime } from "luxon";
+
+export function formatDbTimeToISODate(
+  dateStr: string,
+  tz: "UTC" | "America/New_York",
+) {
+  const dt = DateTime.fromSQL(dateStr, { zone: tz });
+  return dt.toJSDate();
 }

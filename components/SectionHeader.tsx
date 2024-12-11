@@ -8,8 +8,8 @@ function formatDataMetadata(metadata: Metadata | undefined) {
   }
 
   if (metadata.startDate && metadata.endDate) {
-    const startJSDate = formatDbTimeToISODate(metadata.startDate);
-    const endJSDate = formatDbTimeToISODate(metadata.endDate);
+    const startJSDate = formatDbTimeToISODate(metadata.startDate, "UTC");
+    const endJSDate = formatDbTimeToISODate(metadata.endDate, "UTC");
     if (metadata.dateRangePrecision === "MONTH") {
       return `Data from ${DateTime.fromJSDate(startJSDate)
         .setZone("UTC")
@@ -21,8 +21,8 @@ function formatDataMetadata(metadata: Metadata | undefined) {
   } else if (metadata.version) {
     return `Data version ${metadata.version}`;
   } else if (metadata.lastUpdated) {
-    const lastUpdatedJSDate = formatDbTimeToISODate(metadata.lastUpdated);
-    return `Data last synced ${metadata.lastUpdated ? DateTime.fromJSDate(lastUpdatedJSDate).setZone("UTC").toLocaleString() : "Unknown"}`;
+    const lastUpdatedJSDate = formatDbTimeToISODate(metadata.lastUpdated, "UTC");
+    return `Data last synced ${metadata.lastUpdated ? DateTime.fromJSDate(lastUpdatedJSDate).toLocaleString() : "Unknown"}`;
   }
 
   return "";

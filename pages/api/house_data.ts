@@ -58,6 +58,7 @@ export type HpdViolation = Pick<
 
 export type DobViolation = Pick<
   typeof dobViolations.$inferSelect,
+  | "number"
   | "violationnumber"
   | "housenumber"
   | "street"
@@ -173,7 +174,10 @@ function postprocessDobComplaints(complaints: DobComplaint[]): DobComplaint[] {
       const maxDate = maxDobRunDateForComplaint.get(complaint.complaintnumber)!;
 
       const parsedMaxDate = formatDbTimeToISODate(maxDate, "America/New_York");
-      const parsedComplaintDate = formatDbTimeToISODate(complaint.dobrundate, "America/New_York");
+      const parsedComplaintDate = formatDbTimeToISODate(
+        complaint.dobrundate,
+        "America/New_York",
+      );
 
       if (parsedComplaintDate > parsedMaxDate) {
         maxDobRunDateForComplaint.set(
@@ -420,6 +424,7 @@ export default async function handler(
 
   const dobViolationsData = await db
     .select({
+      number: dobViolations.number,
       violationnumber: dobViolations.violationnumber,
       housenumber: dobViolations.housenumber,
       street: dobViolations.street,

@@ -185,7 +185,7 @@ const dobViolationsColumnMetadata: Map<
   keyof DobViolation | "address",
   ColumnMetadata<DobViolation>
 > = new Map([
-  ["violationnumber", { Header: "Number", dataType: ColumnDataTypes.STRING }],
+  ["number", { Header: "Number", dataType: ColumnDataTypes.STRING }],
   [
     "address",
     {

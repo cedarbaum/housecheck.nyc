@@ -1,50 +1,31 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Prisma, PrismaClient } from "@prisma/client";
-import { withAccelerate } from "@prisma/extension-accelerate";
+import { db } from "@/db/db";
+import { eq } from "drizzle-orm";
+import { hpdComplaintsAndProblems, metadata } from "@/db/migrations/schema";
 
-const hpdComplaintProblemsSelectArgs =
-  Prisma.validator<Prisma.hpd_complaints_and_problemsDefaultArgs>()({
-    select: {
-      problemid: true,
-      unittype: true,
-      spacetype: true,
-      type: true,
-      majorcategory: true,
-      minorcategory: true,
-      problemcode: true,
-      complaintstatus: true,
-      complaintstatusdate: true,
-      statusdescription: true,
-    },
-  });
-
-export type HpdComplaintProblem = Prisma.hpd_complaints_and_problemsGetPayload<
-  typeof hpdComplaintProblemsSelectArgs
+export type HpdComplaintProblem = Pick<
+  typeof hpdComplaintsAndProblems.$inferSelect,
+  | "problemid"
+  | "unittype"
+  | "spacetype"
+  | "type"
+  | "majorcategory"
+  | "minorcategory"
+  | "problemcode"
+  | "complaintstatus"
+  | "complaintstatusdate"
+  | "statusdescription"
 >;
+export type Metadata = typeof metadata.$inferSelect;
 
 export type HpdComplaintProblems = {
   hpdComplaintProblems: HpdComplaintProblem[];
   metadata: Metadata;
 };
 
-const metadataSelectArgs = Prisma.validator<Prisma.metadataArgs>()({
-  select: {
-    last_updated: true,
-    version: true,
-    start_date: true,
-    end_date: true,
-    data_range_precision: true,
-    href: true,
-  },
-});
-
-export type Metadata = Prisma.metadataGetPayload<typeof metadataSelectArgs>;
-
-const prisma = new PrismaClient().$extends(withAccelerate())
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<HpdComplaintProblems | { error: string }>
+  res: NextApiResponse<HpdComplaintProblems | { error: string }>,
 ) {
   let { complaint_id } = req.query;
   if (typeof complaint_id !== "string") {
@@ -52,26 +33,32 @@ export default async function handler(
     return;
   }
 
-  const [hpdComplaintProblems, hpdComplaintProblemsMetadata] =
-    await prisma.$transaction([
-      prisma.hpd_complaints_and_problems.findMany({
-        ...hpdComplaintProblemsSelectArgs,
-        where: {
-          complaintid: parseInt(complaint_id),
-        },
-      }),
-      prisma.metadata.findUnique({
-        ...metadataSelectArgs,
-        where: {
-          dataset: "hpd_complaints",
-        },
-      }),
-    ]);
+  const hpdComplaintProblemsData = await db
+    .select({
+      problemid: hpdComplaintsAndProblems.problemid,
+      unittype: hpdComplaintsAndProblems.unittype,
+      spacetype: hpdComplaintsAndProblems.spacetype,
+      type: hpdComplaintsAndProblems.type,
+      majorcategory: hpdComplaintsAndProblems.majorcategory,
+      minorcategory: hpdComplaintsAndProblems.minorcategory,
+      problemcode: hpdComplaintsAndProblems.problemcode,
+      complaintstatus: hpdComplaintsAndProblems.complaintstatus,
+      complaintstatusdate: hpdComplaintsAndProblems.complaintstatusdate,
+      statusdescription: hpdComplaintsAndProblems.statusdescription,
+    })
+    .from(hpdComplaintsAndProblems)
+    .where(eq(hpdComplaintsAndProblems.complaintid, parseInt(complaint_id)));
+
+  const hpdComplaintProblemsMetadata = await db
+    .select()
+    .from(metadata)
+    .where(eq(metadata.dataset, "hpd_complaints"))
+    .limit(1);
 
   res.status(200).json({
-    hpdComplaintProblems,
+    hpdComplaintProblems: hpdComplaintProblemsData,
     metadata: {
-      ...hpdComplaintProblemsMetadata!,
+      ...hpdComplaintProblemsMetadata[0]!,
     },
   });
 }

@@ -1,0 +1,1517 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "prevId": "",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.metadata": {
+      "name": "metadata",
+      "schema": "",
+      "columns": {
+        "dataset": {
+          "name": "dataset",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_updated": {
+          "name": "last_updated",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.hpd_vacateorders": {
+      "name": "hpd_vacateorders",
+      "schema": "",
+      "columns": {
+        "buildingid": {
+          "name": "buildingid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "registrationid": {
+          "name": "registrationid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "borough": {
+          "name": "borough",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "number": {
+          "name": "number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "street": {
+          "name": "street",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vacateordernumber": {
+          "name": "vacateordernumber",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "primaryvacatereason": {
+          "name": "primaryvacatereason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vacatetype": {
+          "name": "vacatetype",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vacateeffectivedate": {
+          "name": "vacateeffectivedate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rescinddate": {
+          "name": "rescinddate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "numberofvacatedunits": {
+          "name": "numberofvacatedunits",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "postcode": {
+          "name": "postcode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "latitude": {
+          "name": "latitude",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "longitude": {
+          "name": "longitude",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "communityboard": {
+          "name": "communityboard",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "councildistrict": {
+          "name": "councildistrict",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "censustract": {
+          "name": "censustract",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bin": {
+          "name": "bin",
+          "type": "char(7)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bbl": {
+          "name": "bbl",
+          "type": "char(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nta": {
+          "name": "nta",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "hpd_vacateorders_bbl_idx": {
+          "name": "hpd_vacateorders_bbl_idx",
+          "columns": [
+            {
+              "expression": "bbl",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "bpchar_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_vacateorders_bin_idx": {
+          "name": "hpd_vacateorders_bin_idx",
+          "columns": [
+            {
+              "expression": "bin",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "bpchar_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_vacateorders_borough_idx": {
+          "name": "hpd_vacateorders_borough_idx",
+          "columns": [
+            {
+              "expression": "borough",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_vacateorders_number_idx": {
+          "name": "hpd_vacateorders_number_idx",
+          "columns": [
+            {
+              "expression": "number",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_vacateorders_street_idx": {
+          "name": "hpd_vacateorders_street_idx",
+          "columns": [
+            {
+              "expression": "street",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.hpd_litigations": {
+      "name": "hpd_litigations",
+      "schema": "",
+      "columns": {
+        "litigationid": {
+          "name": "litigationid",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "buildingid": {
+          "name": "buildingid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "boro": {
+          "name": "boro",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "housenumber": {
+          "name": "housenumber",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "streetname": {
+          "name": "streetname",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "zip": {
+          "name": "zip",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "block": {
+          "name": "block",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lot": {
+          "name": "lot",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "casetype": {
+          "name": "casetype",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "caseopendate": {
+          "name": "caseopendate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "casestatus": {
+          "name": "casestatus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "openjudgement": {
+          "name": "openjudgement",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "findingofharassment": {
+          "name": "findingofharassment",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "findingdate": {
+          "name": "findingdate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "penalty": {
+          "name": "penalty",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "respondent": {
+          "name": "respondent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "latitude": {
+          "name": "latitude",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "longitude": {
+          "name": "longitude",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "communitydistrict": {
+          "name": "communitydistrict",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "councildistrict": {
+          "name": "councildistrict",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "censustract": {
+          "name": "censustract",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bin": {
+          "name": "bin",
+          "type": "char(7)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bbl": {
+          "name": "bbl",
+          "type": "char(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nta": {
+          "name": "nta",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "hpd_litigations_bbl_idx": {
+          "name": "hpd_litigations_bbl_idx",
+          "columns": [
+            {
+              "expression": "bbl",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "bpchar_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_litigations_bin_idx": {
+          "name": "hpd_litigations_bin_idx",
+          "columns": [
+            {
+              "expression": "bin",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "bpchar_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_litigations_boro_idx": {
+          "name": "hpd_litigations_boro_idx",
+          "columns": [
+            {
+              "expression": "boro",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "int4_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_litigations_housenumber_idx": {
+          "name": "hpd_litigations_housenumber_idx",
+          "columns": [
+            {
+              "expression": "housenumber",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_litigations_streetname_idx": {
+          "name": "hpd_litigations_streetname_idx",
+          "columns": [
+            {
+              "expression": "streetname",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.hpd_violations": {
+      "name": "hpd_violations",
+      "schema": "",
+      "columns": {
+        "violationid": {
+          "name": "violationid",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "buildingid": {
+          "name": "buildingid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "registrationid": {
+          "name": "registrationid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "boroid": {
+          "name": "boroid",
+          "type": "char(1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "borough": {
+          "name": "borough",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "housenumber": {
+          "name": "housenumber",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lowhousenumber": {
+          "name": "lowhousenumber",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "highhousenumber": {
+          "name": "highhousenumber",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "streetname": {
+          "name": "streetname",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "streetcode": {
+          "name": "streetcode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "postcode": {
+          "name": "postcode",
+          "type": "char(5)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "apartment": {
+          "name": "apartment",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "story": {
+          "name": "story",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "block": {
+          "name": "block",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lot": {
+          "name": "lot",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "class": {
+          "name": "class",
+          "type": "char(1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "inspectiondate": {
+          "name": "inspectiondate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "approveddate": {
+          "name": "approveddate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "originalcertifybydate": {
+          "name": "originalcertifybydate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "originalcorrectbydate": {
+          "name": "originalcorrectbydate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "newcertifybydate": {
+          "name": "newcertifybydate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "newcorrectbydate": {
+          "name": "newcorrectbydate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "certifieddate": {
+          "name": "certifieddate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ordernumber": {
+          "name": "ordernumber",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "novid": {
+          "name": "novid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "novdescription": {
+          "name": "novdescription",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "novissueddate": {
+          "name": "novissueddate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "currentstatusid": {
+          "name": "currentstatusid",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "currentstatus": {
+          "name": "currentstatus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "currentstatusdate": {
+          "name": "currentstatusdate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "novtype": {
+          "name": "novtype",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "violationstatus": {
+          "name": "violationstatus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "latitude": {
+          "name": "latitude",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "longitude": {
+          "name": "longitude",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "communityboard": {
+          "name": "communityboard",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "councildistrict": {
+          "name": "councildistrict",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "censustract": {
+          "name": "censustract",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bin": {
+          "name": "bin",
+          "type": "char(7)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bbl": {
+          "name": "bbl",
+          "type": "char(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nta": {
+          "name": "nta",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rentimpairing": {
+          "name": "rentimpairing",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "hpd_violations_bbl_idx": {
+          "name": "hpd_violations_bbl_idx",
+          "columns": [
+            {
+              "expression": "bbl",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "bpchar_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_violations_bin_idx": {
+          "name": "hpd_violations_bin_idx",
+          "columns": [
+            {
+              "expression": "bin",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "bpchar_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_violations_borough_idx": {
+          "name": "hpd_violations_borough_idx",
+          "columns": [
+            {
+              "expression": "borough",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_violations_housenumber_idx": {
+          "name": "hpd_violations_housenumber_idx",
+          "columns": [
+            {
+              "expression": "housenumber",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_violations_streetname_idx": {
+          "name": "hpd_violations_streetname_idx",
+          "columns": [
+            {
+              "expression": "streetname",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.dob_violations": {
+      "name": "dob_violations",
+      "schema": "",
+      "columns": {
+        "bbl": {
+          "name": "bbl",
+          "type": "char(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "isndobbisviol": {
+          "name": "isndobbisviol",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "boro": {
+          "name": "boro",
+          "type": "char(1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bin": {
+          "name": "bin",
+          "type": "char(7)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "block": {
+          "name": "block",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lot": {
+          "name": "lot",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "issuedate": {
+          "name": "issuedate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "violationtypecode": {
+          "name": "violationtypecode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "violationnumber": {
+          "name": "violationnumber",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "housenumber": {
+          "name": "housenumber",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "street": {
+          "name": "street",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dispositiondate": {
+          "name": "dispositiondate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dispositioncomments": {
+          "name": "dispositioncomments",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "devicenumber": {
+          "name": "devicenumber",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ecbnumber": {
+          "name": "ecbnumber",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "number": {
+          "name": "number",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "violationcategory": {
+          "name": "violationcategory",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "violationtype": {
+          "name": "violationtype",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "dob_violations_bbl_idx": {
+          "name": "dob_violations_bbl_idx",
+          "columns": [
+            {
+              "expression": "bbl",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "bpchar_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "dob_violations_bin_idx": {
+          "name": "dob_violations_bin_idx",
+          "columns": [
+            {
+              "expression": "bin",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "bpchar_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "dob_violations_boro_idx": {
+          "name": "dob_violations_boro_idx",
+          "columns": [
+            {
+              "expression": "boro",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "bpchar_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "dob_violations_housenumber_idx": {
+          "name": "dob_violations_housenumber_idx",
+          "columns": [
+            {
+              "expression": "housenumber",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "dob_violations_street_idx": {
+          "name": "dob_violations_street_idx",
+          "columns": [
+            {
+              "expression": "street",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.dob_complaints": {
+      "name": "dob_complaints",
+      "schema": "",
+      "columns": {
+        "complaintnumber": {
+          "name": "complaintnumber",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dateentered": {
+          "name": "dateentered",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "housenumber": {
+          "name": "housenumber",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "zipcode": {
+          "name": "zipcode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "housestreet": {
+          "name": "housestreet",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bin": {
+          "name": "bin",
+          "type": "char(7)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "communityboard": {
+          "name": "communityboard",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "specialdistrict": {
+          "name": "specialdistrict",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "complaintcategory": {
+          "name": "complaintcategory",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unit": {
+          "name": "unit",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dispositiondate": {
+          "name": "dispositiondate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dispositioncode": {
+          "name": "dispositioncode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "inspectiondate": {
+          "name": "inspectiondate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dobrundate": {
+          "name": "dobrundate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "dob_complaints_housenumber_idx": {
+          "name": "dob_complaints_housenumber_idx",
+          "columns": [
+            {
+              "expression": "housenumber",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "dob_complaints_housestreet_idx": {
+          "name": "dob_complaints_housestreet_idx",
+          "columns": [
+            {
+              "expression": "housestreet",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "dob_complaints_zipcode_idx": {
+          "name": "dob_complaints_zipcode_idx",
+          "columns": [
+            {
+              "expression": "zipcode",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "dob_complaints_pkey": {
+          "name": "dob_complaints_pkey",
+          "columns": [
+            "complaintnumber",
+            "status",
+            "dateentered",
+            "bin",
+            "complaintcategory",
+            "dobrundate"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.hpd_complaints_and_problems": {
+      "name": "hpd_complaints_and_problems",
+      "schema": "",
+      "columns": {
+        "receiveddate": {
+          "name": "receiveddate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "problemid": {
+          "name": "problemid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "complaintid": {
+          "name": "complaintid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "buildingid": {
+          "name": "buildingid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "borough": {
+          "name": "borough",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "housenumber": {
+          "name": "housenumber",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "streetname": {
+          "name": "streetname",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "postcode": {
+          "name": "postcode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "block": {
+          "name": "block",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lot": {
+          "name": "lot",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "apartment": {
+          "name": "apartment",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "communityboard": {
+          "name": "communityboard",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "unittype": {
+          "name": "unittype",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "spacetype": {
+          "name": "spacetype",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "majorcategory": {
+          "name": "majorcategory",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "minorcategory": {
+          "name": "minorcategory",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "problemcode": {
+          "name": "problemcode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "complaintstatus": {
+          "name": "complaintstatus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "complaintstatusdate": {
+          "name": "complaintstatusdate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "problemstatus": {
+          "name": "problemstatus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "problemstatusdate": {
+          "name": "problemstatusdate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "statusdescription": {
+          "name": "statusdescription",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "problemduplicateflag": {
+          "name": "problemduplicateflag",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "complaintanonymousflag": {
+          "name": "complaintanonymousflag",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "uniquekey": {
+          "name": "uniquekey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "latitude": {
+          "name": "latitude",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "longitude": {
+          "name": "longitude",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "councildistrict": {
+          "name": "councildistrict",
+          "type": "char(2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "censustract": {
+          "name": "censustract",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bin": {
+          "name": "bin",
+          "type": "char(7)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bbl": {
+          "name": "bbl",
+          "type": "char(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nta": {
+          "name": "nta",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "hpd_complaints_and_problems_bbl_idx": {
+          "name": "hpd_complaints_and_problems_bbl_idx",
+          "columns": [
+            {
+              "expression": "bbl",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "bpchar_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_complaints_and_problems_borough_idx": {
+          "name": "hpd_complaints_and_problems_borough_idx",
+          "columns": [
+            {
+              "expression": "borough",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_complaints_and_problems_buildingid_idx": {
+          "name": "hpd_complaints_and_problems_buildingid_idx",
+          "columns": [
+            {
+              "expression": "buildingid",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "int4_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_complaints_and_problems_housenumber_idx": {
+          "name": "hpd_complaints_and_problems_housenumber_idx",
+          "columns": [
+            {
+              "expression": "housenumber",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "hpd_complaints_and_problems_streetname_idx": {
+          "name": "hpd_complaints_and_problems_streetname_idx",
+          "columns": [
+            {
+              "expression": "streetname",
+              "asc": true,
+              "nulls": "last",
+              "opclass": "text_ops",
+              "isExpression": false
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "hpd_complaints_and_problems_pkey": {
+          "name": "hpd_complaints_and_problems_pkey",
+          "columns": [
+            "problemid",
+            "complaintid"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {},
+      "policies": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {}
+  }
+}

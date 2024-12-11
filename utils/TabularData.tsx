@@ -20,6 +20,7 @@ import { dobComplaintCodeToDescAndPriorityMap } from "./DobComplaintCodes";
 import { AddressSearchType } from "@/components/AddressSearchOptions";
 import { ReactNode } from "react";
 import { InfoCallout } from "@/components/Callouts";
+import { formatDbTimeToISODate } from "./DateTime";
 
 const DATE_MIN_VALUE = -8640000000000000;
 
@@ -184,7 +185,7 @@ const dobViolationsColumnMetadata: Map<
   keyof DobViolation | "address",
   ColumnMetadata<DobViolation>
 > = new Map([
-  ["number", { Header: "Number", dataType: ColumnDataTypes.STRING }],
+  ["violationnumber", { Header: "Number", dataType: ColumnDataTypes.STRING }],
   [
     "address",
     {
@@ -247,7 +248,7 @@ const dobComplaintsColumnMetadata: Map<
       dataType: ColumnDataTypes.STRING,
       accessor: (row: DobComplaint) => {
         const complaintDesc = dobComplaintCodeToDescAndPriorityMap.get(
-          row.complaintcategory ?? ""
+          row.complaintcategory ?? "",
         );
 
         if (!complaintDesc) {
@@ -275,7 +276,7 @@ const dobVacateOrdersColumnMetadata: Map<
     },
   ],
   [
-    "lastdispositiondate",
+    "lastdispositiondatedateofissuanceofvacate",
     { Header: "Last disposition date", dataType: ColumnDataTypes.DATE },
   ],
   [
@@ -312,7 +313,10 @@ const hpdComplaintProblemsColumnMetadata: Map<
   ["problemcode", { Header: "Code", dataType: ColumnDataTypes.STRING }],
   ["complaintstatus", { Header: "Status", dataType: ColumnDataTypes.STRING }],
   ["statusdescription", { Header: "Status", dataType: ColumnDataTypes.STRING }],
-  ["complaintstatusdate", { Header: "Status date", dataType: ColumnDataTypes.DATE }],
+  [
+    "complaintstatusdate",
+    { Header: "Status date", dataType: ColumnDataTypes.DATE },
+  ],
 ]);
 
 const dataSourceToHeaders = new Map<
@@ -331,14 +335,14 @@ const dataSourceToHeaders = new Map<
 ]);
 
 export function getSectionMetadataForDataSource(
-  dataSource: Exclude<keyof HouseData | keyof HpdComplaintProblems, "metadata">
+  dataSource: Exclude<keyof HouseData | keyof HpdComplaintProblems, "metadata">,
 ): {
   title: string;
   noDataDescription: string;
   validSearchTypes: Set<AddressSearchType>;
   notifications?: (
     bbl: string | null | undefined,
-    bin: string | null | undefined
+    bin: string | null | undefined,
   ) => ReactNode[];
 } {
   switch (dataSource) {
@@ -423,7 +427,7 @@ export function getSectionMetadataForDataSource(
 }
 
 export function getColumnsForDataSource(
-  dataSource: Exclude<keyof HouseData | keyof HpdComplaintProblems, "metadata">
+  dataSource: Exclude<keyof HouseData | keyof HpdComplaintProblems, "metadata">,
 ): Column<any>[] {
   const headers = dataSourceToHeaders.get(dataSource);
   if (!headers) {
@@ -445,18 +449,29 @@ export function getColumnsForDataSource(
 }
 
 function getDateAccessor(row: any, accessor: string): Date {
-  const value = row[accessor] as Date | null;
+  const value = row[accessor] as Date | string | null;
   if (!value) {
     return new Date(DATE_MIN_VALUE);
+  }
+
+  if (typeof value === "string") {
+    return formatDbTimeToISODate(value);
   }
 
   return value;
 }
 
-function formatDate(date: Date | null): string {
-  if (!date || date.getTime() <= DATE_MIN_VALUE) {
+function formatDate(date: Date | string | null): string {
+  let parsedDate;
+  if (typeof date === "string") {
+    parsedDate = formatDbTimeToISODate(date);
+  } else {
+    parsedDate = date;
+  }
+
+  if (!parsedDate || parsedDate.getTime() <= DATE_MIN_VALUE) {
     return "";
   }
 
-  return DateTime.fromJSDate(date).toUTC().toFormat("yyyy-MM-dd");
+  return DateTime.fromJSDate(parsedDate).toUTC().toFormat("yyyy-MM-dd");
 }

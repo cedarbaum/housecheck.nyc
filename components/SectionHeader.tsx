@@ -1,4 +1,5 @@
 import { Metadata } from "@/pages/api/house_data";
+import { formatDbTimeToISODate } from "@/utils/DateTime";
 import { DateTime } from "luxon";
 
 function formatDataMetadata(metadata: Metadata | undefined) {
@@ -6,20 +7,25 @@ function formatDataMetadata(metadata: Metadata | undefined) {
     return "";
   }
 
-  if (metadata.start_date && metadata.end_date) {
-    if (metadata.data_range_precision === "MONTH") {
-      return `Data from ${DateTime.fromJSDate(metadata.start_date)
+  if (metadata.startDate && metadata.endDate) {
+    const startJSDate = formatDbTimeToISODate(metadata.startDate);
+    const endJSDate = formatDbTimeToISODate(metadata.endDate);
+    if (metadata.dateRangePrecision === "MONTH") {
+      return `Data from ${DateTime.fromJSDate(startJSDate)
         .setZone("UTC")
-        .toFormat("MM/yyyy")} to ${DateTime.fromJSDate(metadata.end_date)
+        .toFormat("MM/yyyy")} to ${DateTime.fromJSDate(endJSDate)
         .setZone("UTC")
         .toFormat("MM/yyyy")}`;
     }
-    return `Data from ${metadata.start_date.toLocaleDateString()} to ${metadata.end_date.toLocaleDateString()}`;
+    return `Data from ${metadata.startDate} to ${metadata.endDate}`;
   } else if (metadata.version) {
     return `Data version ${metadata.version}`;
-  } else {
-    return `Data last synced ${metadata.last_updated ? DateTime.fromJSDate(metadata.last_updated).setZone("UTC").toLocaleString() : "Unknown"}`;
+  } else if (metadata.lastUpdated) {
+    const lastUpdatedJSDate = formatDbTimeToISODate(metadata.lastUpdated);
+    return `Data last synced ${metadata.lastUpdated ? DateTime.fromJSDate(lastUpdatedJSDate).setZone("UTC").toLocaleString() : "Unknown"}`;
   }
+
+  return "";
 }
 
 export default function SectionHeader({

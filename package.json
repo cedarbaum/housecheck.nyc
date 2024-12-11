@@ -6,14 +6,12 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "prisma generate --no-engine"
+    "lint": "next lint"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.14",
     "@heroicons/react": "^2.0.17",
-    "@prisma/client": "^5.5.2",
-    "@prisma/extension-accelerate": "^0.6.2",
+    "@neondatabase/serverless": "^0.10.4",
     "@tailwindcss/forms": "^0.5.3",
     "@turf/turf": "^6.5.0",
     "@types/lodash.debounce": "^4.0.7",
@@ -25,6 +23,8 @@
     "@types/react-table": "^7.7.14",
     "@vercel/analytics": "^1.0.1",
     "autoprefixer": "10.4.14",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.38.0",
     "eslint": "8.38.0",
     "eslint-config-next": "13.3.0",
     "json-date-parser": "^1.0.1",
@@ -43,6 +43,6 @@
     "use-async-effect": "^2.2.7"
   },
   "devDependencies": {
-    "prisma": "^5.5.2"
+    "drizzle-kit": "^0.30.0"
   }
 }

@@ -15,7 +15,6 @@ import {
 import { AddressSearchType } from "@/components/address-search-options";
 import { formatDbTimeToISODate } from "@/lib/date-time";
 
-// Define types for the responses
 export type PlutoData = Pick<
   typeof plutoLatest.$inferSelect,
   | "address"
@@ -112,7 +111,7 @@ export type HouseData = {
   dobViolations: DobViolation[];
   dobComplaints: DobComplaint[];
   dobVacateOrders: DobVacateOrder[];
-  metadata?: Record<Exclude<keyof HouseData, "metadata">, Metadata>;
+  metadata?: Record<Exclude<keyof HouseData, "metadata">, Metadata | null>;
 };
 
 function boroughToBoro(borough: string): number {
@@ -216,325 +215,395 @@ export async function GET(req: Request) {
     search_types?.split(",").map((s) => s as AddressSearchType) ?? [],
   );
 
-  const plutoData = bbl
-    ? await db
-        .select({
-          address: plutoLatest.address,
-          ownername: plutoLatest.ownername,
-          numbldgs: plutoLatest.numbldgs,
-          numfloors: plutoLatest.numfloors,
-          unitstotal: plutoLatest.unitstotal,
-          yearbuilt: plutoLatest.yearbuilt,
-          version: plutoLatest.version,
-        })
-        .from(plutoLatest)
-        .where(eq(plutoLatest.bbl, bbl))
-        .limit(1)
-    : null;
-  const plutoMetadata = await db
-    .select()
-    .from(metadata)
-    .where(eq(metadata.dataset, "pluto_latest"))
-    .limit(1);
+  const plutoDataPromise = db.transaction(async (tx) => {
+    const plutoData = bbl
+      ? await tx
+          .select({
+            address: plutoLatest.address,
+            ownername: plutoLatest.ownername,
+            numbldgs: plutoLatest.numbldgs,
+            numfloors: plutoLatest.numfloors,
+            unitstotal: plutoLatest.unitstotal,
+            yearbuilt: plutoLatest.yearbuilt,
+            version: plutoLatest.version,
+          })
+          .from(plutoLatest)
+          .where(eq(plutoLatest.bbl, bbl))
+          .limit(1)
+      : null;
 
-  const hpdViolationsData = await db
-    .select({
-      violationid: hpdViolations.violationid,
-      housenumber: hpdViolations.housenumber,
-      streetname: hpdViolations.streetname,
-      apartment: hpdViolations.apartment,
-      inspectiondate: hpdViolations.inspectiondate,
-      novdescription: hpdViolations.novdescription,
-      violationstatus: hpdViolations.violationstatus,
-    })
-    .from(hpdViolations)
-    .where(
-      and(
+    const plutoMetadata = await tx
+      .select()
+      .from(metadata)
+      .where(eq(metadata.dataset, "pluto_latest"))
+      .limit(1);
+
+    return {
+      plutoData: plutoData?.[0] || null,
+      plutoMetadata: plutoMetadata[0] || null,
+    };
+  });
+
+  const hpdViolationsPromise = db.transaction(async (tx) => {
+    const hpdViolationsData = await tx
+      .select({
+        violationid: hpdViolations.violationid,
+        housenumber: hpdViolations.housenumber,
+        streetname: hpdViolations.streetname,
+        apartment: hpdViolations.apartment,
+        inspectiondate: hpdViolations.inspectiondate,
+        novdescription: hpdViolations.novdescription,
+        violationstatus: hpdViolations.violationstatus,
+      })
+      .from(hpdViolations)
+      .where(
+        and(
+          or(
+            bbl && searchTypes.has(AddressSearchType.BBL)
+              ? eq(hpdViolations.bbl, bbl)
+              : sql`FALSE`,
+            bin && searchTypes.has(AddressSearchType.BIN)
+              ? eq(hpdViolations.bin, bin)
+              : sql`FALSE`,
+            searchTypes.has(AddressSearchType.Address) &&
+              streetname &&
+              borough &&
+              housenumber
+              ? and(
+                  eq(hpdViolations.streetname, streetname),
+                  eq(hpdViolations.borough, borough),
+                  or(
+                    and(
+                      sql`${hpdViolations.lowhousenumber} <= ${housenumber}`,
+                      sql`${hpdViolations.highhousenumber} >= ${housenumber}`,
+                    ),
+                    eq(hpdViolations.housenumber, housenumber),
+                  ),
+                )
+              : sql`FALSE`,
+          ),
+        ),
+      )
+      .orderBy(desc(hpdViolations.inspectiondate));
+
+    const hpdViolationsMetadata = await tx
+      .select()
+      .from(metadata)
+      .where(eq(metadata.dataset, "hpd_violations"))
+      .limit(1);
+
+    return {
+      hpdViolationsData,
+      hpdViolationsMetadata: hpdViolationsMetadata[0] || null,
+    };
+  });
+
+  const hpdComplaintsPromise = db.transaction(async (tx) => {
+    const hpdComplaintsData = await tx
+      .selectDistinctOn([hpdComplaintsAndProblems.complaintid], {
+        complaintid: hpdComplaintsAndProblems.complaintid,
+        housenumber: hpdComplaintsAndProblems.housenumber,
+        streetname: hpdComplaintsAndProblems.streetname,
+        apartment: hpdComplaintsAndProblems.apartment,
+        receiveddate: hpdComplaintsAndProblems.receiveddate,
+        complaintstatus: hpdComplaintsAndProblems.complaintstatus,
+      })
+      .from(hpdComplaintsAndProblems)
+      .where(
         or(
           bbl && searchTypes.has(AddressSearchType.BBL)
-            ? eq(hpdViolations.bbl, bbl)
-            : sql`FALSE`,
-          bin && searchTypes.has(AddressSearchType.BIN)
-            ? eq(hpdViolations.bin, bin)
+            ? eq(hpdComplaintsAndProblems.bbl, bbl)
             : sql`FALSE`,
           searchTypes.has(AddressSearchType.Address) &&
             streetname &&
-            borough &&
-            housenumber
+            housenumber &&
+            borough
             ? and(
-                eq(hpdViolations.streetname, streetname),
-                eq(hpdViolations.borough, borough),
-                or(
-                  and(
-                    sql`${hpdViolations.lowhousenumber} <= ${housenumber}`,
-                    sql`${hpdViolations.highhousenumber} >= ${housenumber}`,
-                  ),
-                  eq(hpdViolations.housenumber, housenumber),
-                ),
+                eq(hpdComplaintsAndProblems.streetname, streetname),
+                eq(hpdComplaintsAndProblems.housenumber, housenumber),
+                eq(hpdComplaintsAndProblems.borough, borough),
               )
             : sql`FALSE`,
         ),
-      ),
-    )
-    .orderBy(desc(hpdViolations.inspectiondate));
-  const hpdViolationsMetadata = await db
-    .select()
-    .from(metadata)
-    .where(eq(metadata.dataset, "hpd_violations"))
-    .limit(1);
+      );
 
-  const hpdComplaintsData = await db
-    .selectDistinctOn([hpdComplaintsAndProblems.complaintid], {
-      complaintid: hpdComplaintsAndProblems.complaintid,
-      housenumber: hpdComplaintsAndProblems.housenumber,
-      streetname: hpdComplaintsAndProblems.streetname,
-      apartment: hpdComplaintsAndProblems.apartment,
-      receiveddate: hpdComplaintsAndProblems.receiveddate,
-      complaintstatus: hpdComplaintsAndProblems.complaintstatus,
-    })
-    .from(hpdComplaintsAndProblems)
-    .where(
-      or(
-        bbl && searchTypes.has(AddressSearchType.BBL)
-          ? eq(hpdComplaintsAndProblems.bbl, bbl)
-          : sql`FALSE`,
-        searchTypes.has(AddressSearchType.Address) &&
-          streetname &&
-          housenumber &&
-          borough
-          ? and(
-              eq(hpdComplaintsAndProblems.streetname, streetname),
-              eq(hpdComplaintsAndProblems.housenumber, housenumber),
-              eq(hpdComplaintsAndProblems.borough, borough),
-            )
-          : sql`FALSE`,
-      ),
-    );
+    hpdComplaintsData.sort((a, b) => {
+      if (a.receiveddate === b.receiveddate) return 0;
+      if (a.receiveddate === null) return 1;
+      if (b.receiveddate === null) return -1;
+      return a.receiveddate > b.receiveddate ? -1 : 1;
+    });
 
-  hpdComplaintsData.sort((a, b) => {
-    if (a.receiveddate === b.receiveddate) {
-      return 0;
-    }
+    const hpdComplaintsMetadata = await tx
+      .select()
+      .from(metadata)
+      .where(eq(metadata.dataset, "hpd_complaints"))
+      .limit(1);
 
-    if (a.receiveddate === null) {
-      return 1;
-    }
-
-    if (b.receiveddate === null) {
-      return -1;
-    }
-
-    return a.receiveddate > b.receiveddate ? -1 : 1;
+    return {
+      hpdComplaintsData,
+      hpdComplaintsMetadata: hpdComplaintsMetadata[0] || null,
+    };
   });
 
-  const hpdComplaintsMetadata = await db
-    .select()
-    .from(metadata)
-    .where(eq(metadata.dataset, "hpd_complaints"))
-    .limit(1);
+  const hpdLitigationsPromise = db.transaction(async (tx) => {
+    const hpdLitigationsData = await tx
+      .select({
+        litigationid: hpdLitigations.litigationid,
+        housenumber: hpdLitigations.housenumber,
+        streetname: hpdLitigations.streetname,
+        casetype: hpdLitigations.casetype,
+        caseopendate: hpdLitigations.caseopendate,
+        casestatus: hpdLitigations.casestatus,
+        penalty: hpdLitigations.penalty,
+        findingofharassment: hpdLitigations.findingofharassment,
+      })
+      .from(hpdLitigations)
+      .where(
+        or(
+          bbl && searchTypes.has(AddressSearchType.BBL)
+            ? eq(hpdLitigations.bbl, bbl)
+            : sql`FALSE`,
+          bin && searchTypes.has(AddressSearchType.BIN)
+            ? eq(hpdLitigations.bin, bin)
+            : sql`FALSE`,
+          searchTypes.has(AddressSearchType.Address) &&
+            streetname &&
+            housenumber &&
+            borough
+            ? and(
+                eq(hpdLitigations.streetname, streetname),
+                eq(hpdLitigations.housenumber, housenumber),
+                eq(hpdLitigations.boro, boroughToBoro(borough)),
+              )
+            : sql`FALSE`,
+        ),
+      )
+      .orderBy(desc(hpdLitigations.caseopendate));
 
-  const hpdLitigationsData = await db
-    .select({
-      litigationid: hpdLitigations.litigationid,
-      housenumber: hpdLitigations.housenumber,
-      streetname: hpdLitigations.streetname,
-      casetype: hpdLitigations.casetype,
-      caseopendate: hpdLitigations.caseopendate,
-      casestatus: hpdLitigations.casestatus,
-      penalty: hpdLitigations.penalty,
-      findingofharassment: hpdLitigations.findingofharassment,
-    })
-    .from(hpdLitigations)
-    .where(
-      or(
-        bbl && searchTypes.has(AddressSearchType.BBL)
-          ? eq(hpdLitigations.bbl, bbl)
-          : sql`FALSE`,
-        bin && searchTypes.has(AddressSearchType.BIN)
-          ? eq(hpdLitigations.bin, bin)
-          : sql`FALSE`,
-        searchTypes.has(AddressSearchType.Address) &&
-          streetname &&
-          housenumber &&
-          borough
-          ? and(
-              eq(hpdLitigations.streetname, streetname),
-              eq(hpdLitigations.housenumber, housenumber),
-              eq(hpdLitigations.boro, boroughToBoro(borough)),
-            )
-          : sql`FALSE`,
-      ),
-    )
-    .orderBy(desc(hpdLitigations.caseopendate));
-  const hpdLitigationsMetadata = await db
-    .select()
-    .from(metadata)
-    .where(eq(metadata.dataset, "hpd_litigations"))
-    .limit(1);
+    const hpdLitigationsMetadata = await tx
+      .select()
+      .from(metadata)
+      .where(eq(metadata.dataset, "hpd_litigations"))
+      .limit(1);
 
-  const hpdVacateOrdersData = await db
-    .select({
-      vacateordernumber: hpdVacateorders.vacateordernumber,
-      number: hpdVacateorders.number,
-      street: hpdVacateorders.street,
-      vacateeffectivedate: hpdVacateorders.vacateeffectivedate,
-      vacatetype: hpdVacateorders.vacatetype,
-      primaryvacatereason: hpdVacateorders.primaryvacatereason,
-      rescinddate: hpdVacateorders.rescinddate,
-      numberofvacatedunits: hpdVacateorders.numberofvacatedunits,
-    })
-    .from(hpdVacateorders)
-    .where(
-      or(
-        bbl && searchTypes.has(AddressSearchType.BBL)
-          ? eq(hpdVacateorders.bbl, bbl)
-          : sql`FALSE`,
-        bin && searchTypes.has(AddressSearchType.BIN)
-          ? eq(hpdVacateorders.bin, bin)
-          : sql`FALSE`,
-        searchTypes.has(AddressSearchType.Address) &&
-          streetname &&
-          housenumber &&
-          borough
-          ? and(
-              eq(hpdVacateorders.street, streetname),
-              eq(hpdVacateorders.number, housenumber),
-              eq(hpdVacateorders.borough, boroughToBoroCode(borough)),
-            )
-          : sql`FALSE`,
-      ),
-    )
-    .orderBy(desc(hpdVacateorders.vacateeffectivedate));
+    return {
+      hpdLitigationsData,
+      hpdLitigationsMetadata: hpdLitigationsMetadata[0] || null,
+    };
+  });
 
-  const hpdVacateOrdersMetadata = await db
-    .select()
-    .from(metadata)
-    .where(eq(metadata.dataset, "hpd_vacateorders"))
-    .limit(1);
+  const hpdVacateOrdersPromise = db.transaction(async (tx) => {
+    const hpdVacateOrdersData = await tx
+      .select({
+        vacateordernumber: hpdVacateorders.vacateordernumber,
+        number: hpdVacateorders.number,
+        street: hpdVacateorders.street,
+        vacateeffectivedate: hpdVacateorders.vacateeffectivedate,
+        vacatetype: hpdVacateorders.vacatetype,
+        primaryvacatereason: hpdVacateorders.primaryvacatereason,
+        rescinddate: hpdVacateorders.rescinddate,
+        numberofvacatedunits: hpdVacateorders.numberofvacatedunits,
+      })
+      .from(hpdVacateorders)
+      .where(
+        or(
+          bbl && searchTypes.has(AddressSearchType.BBL)
+            ? eq(hpdVacateorders.bbl, bbl)
+            : sql`FALSE`,
+          bin && searchTypes.has(AddressSearchType.BIN)
+            ? eq(hpdVacateorders.bin, bin)
+            : sql`FALSE`,
+          searchTypes.has(AddressSearchType.Address) &&
+            streetname &&
+            housenumber &&
+            borough
+            ? and(
+                eq(hpdVacateorders.street, streetname),
+                eq(hpdVacateorders.number, housenumber),
+                eq(hpdVacateorders.borough, boroughToBoroCode(borough)),
+              )
+            : sql`FALSE`,
+        ),
+      )
+      .orderBy(desc(hpdVacateorders.vacateeffectivedate));
 
-  const dobComplaintsData = await db
-    .select({
-      dobrundate: dobComplaints.dobrundate,
-      complaintnumber: dobComplaints.complaintnumber,
-      housenumber: dobComplaints.housenumber,
-      housestreet: dobComplaints.housestreet,
-      complaintcategory: dobComplaints.complaintcategory,
-      status: dobComplaints.status,
-      dateentered: dobComplaints.dateentered,
-    })
-    .from(dobComplaints)
-    .where(
-      or(
-        bin && searchTypes.has(AddressSearchType.BIN)
-          ? eq(dobComplaints.bin, bin)
-          : sql`FALSE`,
-        searchTypes.has(AddressSearchType.Address) &&
-          streetname &&
-          housenumber &&
-          zipcode
-          ? and(
-              eq(dobComplaints.housestreet, streetname),
-              eq(dobComplaints.housenumber, housenumber),
-              eq(dobComplaints.zipcode, zipcode),
-            )
-          : sql`FALSE`,
-      ),
-    )
-    .orderBy(desc(dobComplaints.dateentered));
+    const hpdVacateOrdersMetadata = await tx
+      .select()
+      .from(metadata)
+      .where(eq(metadata.dataset, "hpd_vacateorders"))
+      .limit(1);
 
-  const dobComplaintsMetadata = await db
-    .select()
-    .from(metadata)
-    .where(eq(metadata.dataset, "dob_complaints"))
-    .limit(1);
+    return {
+      hpdVacateOrdersData,
+      hpdVacateOrdersMetadata: hpdVacateOrdersMetadata[0] || null,
+    };
+  });
 
-  const dobViolationsData = await db
-    .select({
-      number: dobViolations.number,
-      violationnumber: dobViolations.violationnumber,
-      housenumber: dobViolations.housenumber,
-      street: dobViolations.street,
-      issuedate: dobViolations.issuedate,
-      violationtypecode: dobViolations.violationtypecode,
-      violationcategory: dobViolations.violationcategory,
-      violationtype: dobViolations.violationtype,
-      description: dobViolations.description,
-    })
-    .from(dobViolations)
-    .where(
-      or(
-        bbl && searchTypes.has(AddressSearchType.BBL)
-          ? eq(dobViolations.bbl, bbl)
-          : sql`FALSE`,
-        bin && searchTypes.has(AddressSearchType.BIN)
-          ? eq(dobViolations.bin, bin)
-          : sql`FALSE`,
-        searchTypes.has(AddressSearchType.Address) &&
-          streetname &&
-          housenumber &&
-          borough
-          ? and(
-              eq(dobViolations.street, streetname),
-              eq(dobViolations.housenumber, housenumber),
-              eq(dobViolations.boro, boroughToBoro(borough).toString()),
-            )
-          : sql`FALSE`,
-      ),
-    )
-    .orderBy(desc(dobViolations.issuedate));
+  const dobComplaintsPromise = db.transaction(async (tx) => {
+    const dobComplaintsData = await tx
+      .select({
+        dobrundate: dobComplaints.dobrundate,
+        complaintnumber: dobComplaints.complaintnumber,
+        housenumber: dobComplaints.housenumber,
+        housestreet: dobComplaints.housestreet,
+        complaintcategory: dobComplaints.complaintcategory,
+        status: dobComplaints.status,
+        dateentered: dobComplaints.dateentered,
+      })
+      .from(dobComplaints)
+      .where(
+        or(
+          bin && searchTypes.has(AddressSearchType.BIN)
+            ? eq(dobComplaints.bin, bin)
+            : sql`FALSE`,
+          searchTypes.has(AddressSearchType.Address) &&
+            streetname &&
+            housenumber &&
+            zipcode
+            ? and(
+                eq(dobComplaints.housestreet, streetname),
+                eq(dobComplaints.housenumber, housenumber),
+                eq(dobComplaints.zipcode, zipcode),
+              )
+            : sql`FALSE`,
+        ),
+      )
+      .orderBy(desc(dobComplaints.dateentered));
 
-  const dobViolationsMetadata = await db
-    .select()
-    .from(metadata)
-    .where(eq(metadata.dataset, "dob_violations"))
-    .limit(1);
+    const dobComplaintsMetadata = await tx
+      .select()
+      .from(metadata)
+      .where(eq(metadata.dataset, "dob_complaints"))
+      .limit(1);
 
-  const dobVacateOrdersData = await db
-    .select({
-      housenumber: dobVacateOrders.housenumber,
-      streetname: dobVacateOrders.streetname,
-      boroughname: dobVacateOrders.boroughname,
-      zipcode: dobVacateOrders.zipcode,
-      lastdispositiondatedateofissuanceofvacate:
-        dobVacateOrders.lastdispositiondatedateofissuanceofvacate,
-      complaintcategorydescription:
-        dobVacateOrders.complaintcategorydescription,
-      lastdispositioncodedescription:
-        dobVacateOrders.lastdispositioncodedescription,
-    })
-    .from(dobVacateOrders)
-    .where(
-      or(
-        bbl && searchTypes.has(AddressSearchType.BBL)
-          ? eq(dobVacateOrders.bbl, bbl)
-          : sql`FALSE`,
-        searchTypes.has(AddressSearchType.Address) &&
-          streetname &&
-          housenumber &&
-          borough &&
-          zipcode
-          ? and(
-              eq(dobVacateOrders.streetname, streetname),
-              eq(dobVacateOrders.housenumber, housenumber),
-              eq(
-                dobVacateOrders.boroughname,
-                boroughToCapitalizedBorough(borough),
-              ),
-              eq(dobVacateOrders.zipcode, zipcode),
-            )
-          : sql`FALSE`,
-      ),
-    )
-    .orderBy(desc(dobVacateOrders.lastdispositiondatedateofissuanceofvacate));
+    return {
+      dobComplaintsData: postprocessDobComplaints(dobComplaintsData),
+      dobComplaintsMetadata: dobComplaintsMetadata[0] || null,
+    };
+  });
 
-  const dobVacateOrdersMetadata = await db
-    .select()
-    .from(metadata)
-    .where(eq(metadata.dataset, "dob_vacate_orders"))
-    .limit(1);
+  const dobViolationsPromise = db.transaction(async (tx) => {
+    const dobViolationsData = await tx
+      .select({
+        number: dobViolations.number,
+        violationnumber: dobViolations.violationnumber,
+        housenumber: dobViolations.housenumber,
+        street: dobViolations.street,
+        issuedate: dobViolations.issuedate,
+        violationtypecode: dobViolations.violationtypecode,
+        violationcategory: dobViolations.violationcategory,
+        violationtype: dobViolations.violationtype,
+        description: dobViolations.description,
+      })
+      .from(dobViolations)
+      .where(
+        or(
+          bbl && searchTypes.has(AddressSearchType.BBL)
+            ? eq(dobViolations.bbl, bbl)
+            : sql`FALSE`,
+          bin && searchTypes.has(AddressSearchType.BIN)
+            ? eq(dobViolations.bin, bin)
+            : sql`FALSE`,
+          searchTypes.has(AddressSearchType.Address) &&
+            streetname &&
+            housenumber &&
+            borough
+            ? and(
+                eq(dobViolations.street, streetname),
+                eq(dobViolations.housenumber, housenumber),
+                eq(dobViolations.boro, boroughToBoro(borough).toString()),
+              )
+            : sql`FALSE`,
+        ),
+      )
+      .orderBy(desc(dobViolations.issuedate));
+
+    const dobViolationsMetadata = await tx
+      .select()
+      .from(metadata)
+      .where(eq(metadata.dataset, "dob_violations"))
+      .limit(1);
+
+    return {
+      dobViolationsData,
+      dobViolationsMetadata: dobViolationsMetadata[0] || null,
+    };
+  });
+
+  const dobVacateOrdersPromise = db.transaction(async (tx) => {
+    const dobVacateOrdersData = await tx
+      .select({
+        housenumber: dobVacateOrders.housenumber,
+        streetname: dobVacateOrders.streetname,
+        boroughname: dobVacateOrders.boroughname,
+        zipcode: dobVacateOrders.zipcode,
+        lastdispositiondatedateofissuanceofvacate:
+          dobVacateOrders.lastdispositiondatedateofissuanceofvacate,
+        complaintcategorydescription:
+          dobVacateOrders.complaintcategorydescription,
+        lastdispositioncodedescription:
+          dobVacateOrders.lastdispositioncodedescription,
+      })
+      .from(dobVacateOrders)
+      .where(
+        or(
+          bbl && searchTypes.has(AddressSearchType.BBL)
+            ? eq(dobVacateOrders.bbl, bbl)
+            : sql`FALSE`,
+          searchTypes.has(AddressSearchType.Address) &&
+            streetname &&
+            housenumber &&
+            borough &&
+            zipcode
+            ? and(
+                eq(dobVacateOrders.streetname, streetname),
+                eq(dobVacateOrders.housenumber, housenumber),
+                eq(
+                  dobVacateOrders.boroughname,
+                  boroughToCapitalizedBorough(borough),
+                ),
+                eq(dobVacateOrders.zipcode, zipcode),
+              )
+            : sql`FALSE`,
+        ),
+      )
+      .orderBy(desc(dobVacateOrders.lastdispositiondatedateofissuanceofvacate));
+
+    const dobVacateOrdersMetadata = await tx
+      .select()
+      .from(metadata)
+      .where(eq(metadata.dataset, "dob_vacate_orders"))
+      .limit(1);
+
+    return {
+      dobVacateOrdersData,
+      dobVacateOrdersMetadata: dobVacateOrdersMetadata[0] || null,
+    };
+  });
+
+  const [
+    { plutoData, plutoMetadata },
+    { hpdViolationsData, hpdViolationsMetadata },
+    { hpdComplaintsData, hpdComplaintsMetadata },
+    { hpdLitigationsData, hpdLitigationsMetadata },
+    { hpdVacateOrdersData, hpdVacateOrdersMetadata },
+    { dobViolationsData, dobViolationsMetadata },
+    { dobComplaintsData, dobComplaintsMetadata },
+    { dobVacateOrdersData, dobVacateOrdersMetadata },
+  ] = await Promise.all([
+    plutoDataPromise,
+    hpdViolationsPromise,
+    hpdComplaintsPromise,
+    hpdLitigationsPromise,
+    hpdVacateOrdersPromise,
+    dobViolationsPromise,
+    dobComplaintsPromise,
+    dobVacateOrdersPromise,
+  ]);
 
   return NextResponse.json({
-    plutoData: plutoData ? plutoData[0] : null,
+    plutoData: plutoData,
     hpdViolations: hpdViolationsData,
     hpdComplaints: hpdComplaintsData,
     hpdLitigations: hpdLitigationsData,
@@ -543,14 +612,14 @@ export async function GET(req: Request) {
     dobComplaints: postprocessDobComplaints(dobComplaintsData),
     dobVacateOrders: dobVacateOrdersData,
     metadata: {
-      plutoData: plutoMetadata[0]!,
-      hpdViolations: hpdViolationsMetadata[0]!,
-      hpdComplaints: hpdComplaintsMetadata[0]!,
-      hpdLitigations: hpdLitigationsMetadata[0]!,
-      hpdVacateOrders: hpdVacateOrdersMetadata[0]!,
-      dobViolations: dobViolationsMetadata[0]!,
-      dobComplaints: dobComplaintsMetadata[0]!,
-      dobVacateOrders: dobVacateOrdersMetadata[0]!,
+      plutoData: plutoMetadata,
+      hpdViolations: hpdViolationsMetadata,
+      hpdComplaints: hpdComplaintsMetadata,
+      hpdLitigations: hpdLitigationsMetadata,
+      hpdVacateOrders: hpdVacateOrdersMetadata,
+      dobViolations: dobViolationsMetadata,
+      dobComplaints: dobComplaintsMetadata,
+      dobVacateOrders: dobVacateOrdersMetadata,
     },
   });
 }

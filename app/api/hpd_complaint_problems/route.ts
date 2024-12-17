@@ -20,7 +20,7 @@ export type Metadata = typeof metadata.$inferSelect;
 
 export type HpdComplaintProblems = {
   hpdComplaintProblems: HpdComplaintProblem[];
-  metadata: Metadata;
+  metadata: Metadata | null;
 };
 
 export async function GET(req: Request) {
@@ -34,32 +34,42 @@ export async function GET(req: Request) {
     );
   }
 
-  const hpdComplaintProblemsData = await db
-    .select({
-      problemid: hpdComplaintsAndProblems.problemid,
-      unittype: hpdComplaintsAndProblems.unittype,
-      spacetype: hpdComplaintsAndProblems.spacetype,
-      type: hpdComplaintsAndProblems.type,
-      majorcategory: hpdComplaintsAndProblems.majorcategory,
-      minorcategory: hpdComplaintsAndProblems.minorcategory,
-      problemcode: hpdComplaintsAndProblems.problemcode,
-      complaintstatus: hpdComplaintsAndProblems.complaintstatus,
-      complaintstatusdate: hpdComplaintsAndProblems.complaintstatusdate,
-      statusdescription: hpdComplaintsAndProblems.statusdescription,
-    })
-    .from(hpdComplaintsAndProblems)
-    .where(eq(hpdComplaintsAndProblems.complaintid, parseInt(complaint_id)));
+  const { hpdComplaintProblemsData, hpdComplaintProblemsMetadata } =
+    await db.transaction(async (tx) => {
+      const hpdComplaintProblemsData = await tx
+        .select({
+          problemid: hpdComplaintsAndProblems.problemid,
+          unittype: hpdComplaintsAndProblems.unittype,
+          spacetype: hpdComplaintsAndProblems.spacetype,
+          type: hpdComplaintsAndProblems.type,
+          majorcategory: hpdComplaintsAndProblems.majorcategory,
+          minorcategory: hpdComplaintsAndProblems.minorcategory,
+          problemcode: hpdComplaintsAndProblems.problemcode,
+          complaintstatus: hpdComplaintsAndProblems.complaintstatus,
+          complaintstatusdate: hpdComplaintsAndProblems.complaintstatusdate,
+          statusdescription: hpdComplaintsAndProblems.statusdescription,
+        })
+        .from(hpdComplaintsAndProblems)
+        .where(
+          eq(hpdComplaintsAndProblems.complaintid, parseInt(complaint_id)),
+        );
 
-  const hpdComplaintProblemsMetadata = await db
-    .select()
-    .from(metadata)
-    .where(eq(metadata.dataset, "hpd_complaints"))
-    .limit(1);
+      const hpdComplaintProblemsMetadata = await tx
+        .select()
+        .from(metadata)
+        .where(eq(metadata.dataset, "hpd_complaints"))
+        .limit(1);
+
+      return {
+        hpdComplaintProblemsData,
+        hpdComplaintProblemsMetadata: hpdComplaintProblemsMetadata[0] || null,
+      };
+    });
 
   return NextResponse.json({
     hpdComplaintProblems: hpdComplaintProblemsData,
     metadata: {
-      ...hpdComplaintProblemsMetadata[0]!,
+      ...hpdComplaintProblemsMetadata,
     },
   });
 }

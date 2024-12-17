@@ -10,7 +10,7 @@ export default function SectionLoader({
   sectionZIndex,
 }: {
   title: string;
-  metadata: Metadata | undefined;
+  metadata: Metadata | null |  undefined;
   children: React.ReactNode;
   isLoading: boolean;
   sectionZIndex?: number;

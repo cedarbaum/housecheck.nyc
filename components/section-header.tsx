@@ -3,7 +3,7 @@ import { formatDbTimeToISODate } from "@/lib/date-time";
 import { DateTime } from "luxon";
 import Link from "next/link";
 
-function formatDataMetadata(metadata: Metadata | undefined) {
+function formatDataMetadata(metadata: Metadata | null | undefined) {
   if (!metadata) {
     return "";
   }
@@ -37,7 +37,7 @@ export default function SectionHeader({
   metadata,
 }: {
   title: string;
-  metadata: Metadata | undefined;
+  metadata: Metadata | null | undefined;
 }) {
   return (
     <h1 className="flex flex-col md:flex-row items-baseline justify-between font-bold text-2xl py-8">

@@ -31,6 +31,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
 import { getSectionMetadataForDataSource } from "@/lib/section-metadata";
 import SectionLoader from "@/components/section-loader";
+import { cn } from "@/lib/utils";
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
 const tabularDataSources: Exclude<keyof HouseData, "metadata">[] = [
@@ -125,7 +126,7 @@ export default function Home() {
 
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  // const showMap = !!geometryCoordinates && !!geometryType;
+  const showMap = !!geometryCoordinates && !!geometryType;
 
   useEffect(() => {
     if (!map.current) return;
@@ -255,7 +256,7 @@ export default function Home() {
             <AddressInfo bbl={bbl} bin={bin} postalcode={postalcode} />
           </div>
         )}
-        <div>
+        <div className={cn(!showMap && "invisible h-0")}>
           <div ref={mapContainer} className="h-[150px] md:h-[250px] my-2" />
         </div>
         {!!error && (

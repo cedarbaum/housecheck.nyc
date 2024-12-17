@@ -66,7 +66,7 @@ export async function GET(req: Request) {
       };
     });
 
-  return NextResponse.json({
+  return NextResponse.json<HpdComplaintProblems>({
     hpdComplaintProblems: hpdComplaintProblemsData,
     metadata: {
       ...hpdComplaintProblemsMetadata,

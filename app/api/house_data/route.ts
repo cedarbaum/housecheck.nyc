@@ -602,7 +602,7 @@ export async function GET(req: Request) {
     dobVacateOrdersPromise,
   ]);
 
-  return NextResponse.json({
+  return NextResponse.json<HouseData>({
     plutoData: plutoData,
     hpdViolations: hpdViolationsData,
     hpdComplaints: hpdComplaintsData,

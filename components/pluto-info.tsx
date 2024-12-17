@@ -8,6 +8,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableRow } from "./ui/table";
+import { useMemo } from "react";
 
 export default function PlutoInfo({
   plutoData,
@@ -16,8 +17,12 @@ export default function PlutoInfo({
   plutoData: PlutoData | null;
   searchTypes: Set<AddressSearchType>;
 }) {
+  const plutoTableData = useMemo(() => {
+    return plutoData ? [plutoData] : [];
+  }, [plutoData]);
+
   const table = useReactTable({
-    data: plutoData ? [plutoData] : [],
+    data: plutoTableData,
     columns: plutoColumns,
     getCoreRowModel: getCoreRowModel(),
   });

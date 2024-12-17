@@ -14,6 +14,7 @@ export default function HpdComplaintProblems() {
   const params = useParams();
   const complaintId = params.slug as string | undefined;
 
+  const queryEnabled = !!complaintId;
   const { data, error, isLoading } = useQuery({
     queryKey: ["hpd_complaint_problems", complaintId],
     queryFn: async () => {
@@ -33,14 +34,14 @@ export default function HpdComplaintProblems() {
         jsonDateParser,
       ) as HpdComplaintProblems;
     },
-    enabled: !!complaintId,
+    enabled: queryEnabled,
   });
 
   const { noDataDescription } = getSectionMetadataForDataSource(
     "hpdComplaintProblems",
   );
 
-  const showLoadingState = isLoading || (!data && !error && !!complaintId);
+  const showLoadingState = queryEnabled && (isLoading || (!data && !error));
 
   return (
     <div>

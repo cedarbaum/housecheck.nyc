@@ -215,7 +215,7 @@ export default function Home() {
     });
   });
 
-  const showLoadingState = isLoading || (!data && !error && queryEnabled);
+  const showLoadingState = queryEnabled && (isLoading || (!data && !error));
 
   return (
     <>

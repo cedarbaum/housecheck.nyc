@@ -50,7 +50,7 @@ export default function PlutoInfo({
               <TableBody className="px-6 py-4">
                 {headers.map((header) => (
                   <TableRow key={header.id}>
-                    <TableHead className="text-left uppercase font-bold px-6 py-4">
+                    <TableHead className="text-left uppercase font-bold px-6 py-4 border-r">
                       {flexRender(
                         header.column.columnDef.header,
                         header.getContext(),
@@ -59,7 +59,7 @@ export default function PlutoInfo({
                     {cells
                       .filter((cell) => cell.column.id === header.column.id)
                       .map((cell) => (
-                        <TableCell key={cell.id} className="px-6 py-4">
+                        <TableCell key={cell.id} className="px-6 py-4 text-md">
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext(),

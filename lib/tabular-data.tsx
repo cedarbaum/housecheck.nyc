@@ -1,5 +1,4 @@
 import {
-  HouseData,
   DobComplaint,
   DobVacateOrder,
   DobViolation,
@@ -8,7 +7,7 @@ import {
   HpdVacateOrder,
   HpdViolation,
   PlutoData,
-} from "@/app/api/house_data/route";
+} from "@/app/api/house_data/datasets";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { DateTime } from "luxon";
 import Link from "next/link";
@@ -18,6 +17,7 @@ import {
 } from "@/app/api/hpd_complaint_problems/route";
 import { dobComplaintCodeToDescAndPriorityMap } from "@/lib/dob-complaint-codes";
 import { formatDbTimeToISODate } from "@/lib/date-time";
+import { HouseData } from "@/app/api/house_data/route";
 
 const DATE_MIN_VALUE = -8640000000000000;
 

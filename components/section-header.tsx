@@ -1,4 +1,4 @@
-import { Metadata } from "@/app/api/house_data/route";
+import { Metadata } from "@/app/api/house_data/datasets";
 import { formatDbTimeToISODate } from "@/lib/date-time";
 import { DateTime } from "luxon";
 import Link from "next/link";
@@ -15,8 +15,8 @@ function formatDataMetadata(metadata: Metadata | null | undefined) {
       return `Data from ${DateTime.fromJSDate(startJSDate)
         .setZone("UTC")
         .toFormat("MM/yyyy")} to ${DateTime.fromJSDate(endJSDate)
-        .setZone("UTC")
-        .toFormat("MM/yyyy")}`;
+          .setZone("UTC")
+          .toFormat("MM/yyyy")}`;
     }
     return `Data from ${metadata.startDate} to ${metadata.endDate}`;
   } else if (metadata.version) {

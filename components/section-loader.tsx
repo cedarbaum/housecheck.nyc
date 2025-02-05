@@ -1,6 +1,6 @@
-import { Metadata } from "@/app/api/house_data/route";
 import SectionHeader from "./section-header";
 import { DataTableSkeleton } from "./data-table-skeleton";
+import { Metadata } from "@/app/api/house_data/datasets";
 
 export default function SectionLoader({
   title,
@@ -10,7 +10,7 @@ export default function SectionLoader({
   sectionZIndex,
 }: {
   title: string;
-  metadata: Metadata | null |  undefined;
+  metadata: Metadata | null | undefined;
   children: React.ReactNode;
   isLoading: boolean;
   sectionZIndex?: number;

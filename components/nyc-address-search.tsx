@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import {
   Command,
@@ -26,8 +24,8 @@ export default function NycAddressSearch({
   initialAddress,
   onSelect,
 }: NycAddressSearchProps) {
-  const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+  const [showSuggestions, setShowSuggestions] = React.useState(false);
+  const [addressInput, setAddressInput] = React.useState("");
   const [suggestions, setSuggestions] = React.useState<Feature[]>([]);
 
   const debouncedFetchSuggestions = React.useMemo(
@@ -68,8 +66,8 @@ export default function NycAddressSearch({
   }, [initialAddress]);
 
   const handleSelect = (suggestion: Feature | null) => {
-    setValue(suggestion?.properties?.label ?? "");
-    setOpen(false);
+    setAddressInput(suggestion?.properties?.label ?? "");
+    setShowSuggestions(false);
     setSuggestions([]);
     onSelect(suggestion);
   };
@@ -79,24 +77,24 @@ export default function NycAddressSearch({
       <Command className="rounded-md border">
         <CommandInput
           className="w-full border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-14 text-lg"
-          wrapperClassName={cn(open && "border-b")}
+          wrapperClassName={cn(showSuggestions && "border-b")}
           placeholder="Search NYC addresses"
-          value={value}
+          value={addressInput}
           onValueChange={(text) => {
-            setValue(text);
-            setOpen(true);
+            setAddressInput(text);
+            setShowSuggestions(true);
             debouncedFetchSuggestions(text);
           }}
-          showClearButton={value?.length > 0}
+          showClearButton={addressInput?.length > 0}
           onClear={() => {
             handleSelect(null);
           }}
         />
         <CommandList className="border-0">
-          {open && suggestions.length === 0 && value && (
+          {showSuggestions && suggestions.length === 0 && addressInput && (
             <CommandEmpty>No address found.</CommandEmpty>
           )}
-          {open && suggestions.length > 0 && (
+          {showSuggestions && suggestions.length > 0 && (
             <CommandGroup className="border-0">
               {suggestions.map((suggestion) => (
                 <CommandItem

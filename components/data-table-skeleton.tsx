@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export function DataTableSkeleton() {
   return (
-    <div className="w-full">
+    <div className="w-full pointer-events-none">
       <div className="rounded-md border">
         <Table>
           <TableHeader>

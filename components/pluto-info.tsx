@@ -1,4 +1,3 @@
-import { PlutoData } from "@/app/api/house_data/route";
 import { ErrorCallout, WarningCallout } from "./callouts";
 import { AddressSearchType } from "./address-search-options";
 import { plutoColumns } from "@/lib/tabular-data";
@@ -9,6 +8,7 @@ import {
 } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableRow } from "./ui/table";
 import { useMemo } from "react";
+import { PlutoData } from "@/app/api/house_data/datasets";
 
 export default function PlutoInfo({
   plutoData,

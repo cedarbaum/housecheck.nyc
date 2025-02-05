@@ -12,7 +12,7 @@ import {
   metadata,
 } from "@/db/migrations/schema";
 import { AddressSearchType } from "@/components/address-search-options";
-import { boroughToBoro, boroughToBoroCode, boroughToCapitalizedBorough } from "./borough-utils";
+import { boroughToBoro, boroughToBoroCode, boroughToCapitalizedBorough } from "@/lib/borough-utils";
 import { formatDbTimeToISODate } from "@/lib/date-time";
 
 export type DatasetParams = {

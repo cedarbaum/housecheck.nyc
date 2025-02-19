@@ -103,8 +103,12 @@ export default function Home() {
         return null;
       }
 
-      const resp = await fetch(
-        "/api/house_data?" +
+      const abortController = new AbortController();
+      const timeoutId = setTimeout(() => abortController.abort(), 10000);
+
+      try {
+        const resp = await fetch(
+          "/api/house_data?" +
           new URLSearchParams({
             streetname: streetname!,
             housenumber: housenumber!,
@@ -114,14 +118,25 @@ export default function Home() {
             bin: bin!,
             search_types: searchTypes.join(","),
           }),
-      );
+          { signal: abortController.signal },
+        );
 
-      if (!resp.ok) {
-        throw new Error("Failed to fetch housing data");
+        clearTimeout(timeoutId);
+
+        if (!resp.ok) {
+          throw new Error("Failed to fetch housing data");
+        }
+
+        return JSON.parse(await resp.text(), jsonDateParser) as HouseData;
+      } catch (e) {
+        console.error(e);
+        throw e;
+      } finally {
+        clearTimeout(timeoutId);
       }
-
-      return JSON.parse(await resp.text(), jsonDateParser) as HouseData;
     },
+    retry: 3,
+    retryDelay: 100,
   });
 
   const mapContainer = useRef<HTMLDivElement | null>(null);
